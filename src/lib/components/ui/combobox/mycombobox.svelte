@@ -2,6 +2,7 @@
 	import { Combobox } from 'bits-ui';
 	import { flyAndScale } from '$lib/utils';
 	import { tick } from 'svelte';
+	import { CaretSort, HeartFilled } from 'svelte-radix';
 	export let name = 'result';
 	export let onChange: (value: { label?: string; value: string } | undefined) => void;
 	export let options: { label: string; value: string }[] = [];
@@ -28,15 +29,17 @@
 	}}
 >
 	<div class="relative">
+		<HeartFilled class="fill-muted-foreground"/>	
 		<Combobox.Input
-			class="h-input rounded-sm border-slate-300 placeholder:text-foreground-alt/50 inline-flex w-[296px] truncate border bg-background px-8 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 focus:ring-offset-background"
+			class="h-input placeholder:text-foreground-alt/50 inline-flex w-[296px] truncate border bg-background px-8 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 focus:ring-offset-background"
 			placeholder={label}
 			aria-label={label}
 		/>
+		<CaretSort/>
 	</div>
 
 	<Combobox.Content
-		class="w-full rounded-xl border border-muted bg-background px-1 py-3 shadow-popover outline-none"
+		class="w-full rounded-xl border border-muted bg-background px-1 py-3 shadow-popover outline-none max-h-96 overflow-auto"
 		transition={flyAndScale}
 		sideOffset={8}
 	>
