@@ -23,6 +23,26 @@ export type Coordinates = {
 	lon: number;
 };
 
+export type SortDirection = 'asc' | 'desc';
+export type SortField = 'breed' | 'name' | 'age';
+export type DogSearchSortParam = `${SortField}:${SortDirection}`;
+export type DogSearchParams = {
+	breeds?: string[];	
+	zipCodes?: string[];
+	ageMin?: number;
+	ageMax?:number;
+
+	size?:number;
+	from?:number;
+	sort?: DogSearchSortParam;
+}
+
+export type DogsSearchResponse = {
+	resultIds: string[];
+	next:string;
+	prev:string;
+}
+
 /**
  * the Returned requestIds from `/dogs/search`
  **/

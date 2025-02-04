@@ -1,37 +1,26 @@
+import { getBreeds, searchDogsHandler, type SearchDogsHandlerResponse } from '$lib/server/api';
+import type { Breeds } from '$lib/types/api';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = (async ({ request, fetch }) => {
-	const searchResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs/search', {
-		method: 'GET',
-		credentials: 'include',
-		headers: {
-			cookie: request.headers.get('cookie')
-		}
-	});
+export type PageData = {
+	searchData:	SearchDogsHandlerResponse;
+	breeds: Breeds | {error:number; message:string};
+}
 
-	if (!searchResponse.ok) {
-		return {
-			error: searchResponse.statusText,
-			message: await searchResponse.text(),
-		};
-	}
-
-	const searchData = await searchResponse.json();
-	const dogsResponse = await fetch('https://frontend-take-home-service.fetch.com/dogs',{
-		method:'POST',
-		credentials:'include',
-		headers:{
-			cookie:request.headers.get('cookie'),
-			"Content-Type":"application/json",
-		},
-		body:JSON.stringify(searchData.resultIds)
-	})
-
-	const dogs = await dogsResponse.json();
+export const load: PageServerLoad = async (event):Promise<PageData> => {
+	const [searchDogsData, breeds] = await Promise.allSettled([
+		searchDogsHandler(event),
+		getBreeds(event)
+	]);
 
 	return {
-		dogs,
-		next:searchData.next,
-		prev:searchData.prev
+		searchData:
+			searchDogsData.status === 'fulfilled'
+				? searchDogsData.value
+				: { error: '500', message: searchDogsData.reason },
+		breeds:
+			breeds.status === 'fulfilled'
+				? breeds.value
+				: { error: '500', message: breeds.reason }
 	};
-}) satisfies PageServerLoad;
+};

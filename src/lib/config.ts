@@ -1,6 +1,8 @@
 import { PUBLIC_API } from "$env/static/public";
 
 export const API = {
+	base: PUBLIC_API,
+
 	login: `${PUBLIC_API}/auth/login`,
 
 	dogs:`${PUBLIC_API}/dogs`, // post 
