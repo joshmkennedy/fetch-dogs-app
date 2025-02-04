@@ -1,0 +1,8 @@
+<script lang='ts'>
+	import { cn } from "$lib/utils";
+
+	const props = $props()
+	let className = props.class
+</script>
+<input {...props} class={cn("focus:ring-purple-800 focus:outline-0 focus:border-muted focus:ring-offset-2 focus:ring-offset-background p-2 border-slate-300 rounded-md", className)} />
+
