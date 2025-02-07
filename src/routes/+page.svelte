@@ -9,7 +9,6 @@
 	import StateSelect from '$lib/components/state-select.svelte';
 	import Locations from '$lib/components/forms/locations.svelte';
 	import LocationsModal from '$lib/components/forms/locations-modal.svelte';
-	import { Zips } from '$lib/store';
 	import PuppyGrid from '$lib/components/puppy-grid.svelte';
 	let { data } = $props();
 
@@ -21,17 +20,10 @@
 
 	async function handleFilter({ formElement }: { formElement: HTMLFormElement }) {
 		const formData = new FormData(formElement);
-		console.log(formData.get('state'));
 
 		selectedBreeds.forEach((breed) => {
 			formData.append('breeds', breed.value);
 		});
-
-		$Zips &&
-			$Zips.length &&
-			$Zips.forEach((zip) => {
-				formData.append('zipCodes', zip);
-			});
 
 		const data = new URLSearchParams(
 			[...formData].map(([key, value]) => [key, value.toString().trim()])

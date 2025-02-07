@@ -24,10 +24,3 @@ export const load: PageServerLoad = async (event):Promise<PageData> => {
 				: { error: '500', message: breeds.reason }
 	};
 };
-
-export const actions = {
-	default: async ({ request }) => {
-	}
-};
-
-

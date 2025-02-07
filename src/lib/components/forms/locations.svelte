@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import StateSelect from '../state-select.svelte';
-	import { Zips, LocationInfo } from '$lib/store';
+	import { LocationInfo } from '$lib/store';
 	import { onMount } from 'svelte';
 	import { Button } from '../ui/button';
 
-	let { onSubmit } = $props();
+	let { onSubmit: _onSubmit }:{_onSumbit:()=>void} = $props();
 
 	let selectedState = $state<string>('');
 	let zip = $state<string>('');
@@ -19,7 +19,7 @@
 			distance = $LocationInfo.distance || 69;
 		}
 	});
-	async function saveZips(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
+	async function saveLocationInfo(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 		event.preventDefault();
 		const submission = {
 			city: city || null,
@@ -33,17 +33,12 @@
 			[...Object.entries(submission)].map(([key, val]) => [key, val?.toString() || ''])
 		).toString();
 
-		$Zips = await fetch(`/api/state-zips?${params}`, {
-			method: 'GET',
-			credentials: 'include'
-		}).then((res) => res.json());
-
-		onSubmit();
+		_onSubmit();
 	}
 </script>
 
 <div>
-	<form onsubmit={saveZips} class="flex flex-col gap-6">
+	<form onsubmit={saveLocationInfo} class="flex flex-col gap-6">
 		<div class="flex flex-col gap-2">
 			<div class="flex flex-col gap-2">
 				<label for="city">City</label>

@@ -12,13 +12,30 @@ import { dogSearchRequestObj } from '$lib/utils';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function searchDogs(
-	req: Request
+	event: RequestEvent
 ): Promise<DogsSearchResponse | { error: string; message: string }> {
-	const url = new URL(req.url);
-	const searchRequest = dogSearchRequestObj(url.searchParams.toString());
-	searchRequest.headers.set('cookie', req.headers.get('cookie') || '');
+	const { fetch, request } = event;
+	const url = new URL(request.url);
 
+	const zips = await getZipsFromLocation(event);
+
+	if ('error' in zips) {
+		return { error: zips.error?.toString() ?? '', message: zips.message ?? '' };
+	}
+
+	url.searchParams.delete('city');
+	url.searchParams.delete('state');
+	url.searchParams.delete('zip');
+	url.searchParams.delete('distance');
+
+	zips.data?.forEach((zip) => {
+		url.searchParams.append('zipCodes', zip);
+	});
+
+	const searchRequest = dogSearchRequestObj(url.searchParams.toString());
+	searchRequest.headers.set('cookie', request.headers.get('cookie') || '');
 	const searchResponse = await fetch(searchRequest);
+
 	if (!searchResponse.ok) {
 		return {
 			message: searchResponse.statusText,
@@ -53,31 +70,31 @@ export async function getDogs(
 
 export type SearchDogsHandlerResponse =
 	| {
-			dogs: DogsResponseBody;
-			next: number;
-			prev: number;
-	  }
+		dogs: DogsResponseBody;
+		next: number;
+		prev: number;
+	}
 	| { message: string; error: string };
-export async function searchDogsHandler({
-	request
-}: {
-	request: Request;
-}): Promise<SearchDogsHandlerResponse> {
-	const searchData = await searchDogs(request);
-	console.log(searchData);
+/**
+ * requires that city, state, zip, and distance are in the url as params
+ * and optionally a list of breeds are in the url
+ *
+ **/
+export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogsHandlerResponse> {
+	const searchData = await searchDogs(event);
 	if ('error' in searchData) {
 		searchData.message += '\nFailed searching for dogs';
 		return searchData;
 	}
 
-	const dogsResponse = await getDogs(request, searchData.resultIds);
+	const dogsResponse = await getDogs(event.request, searchData.resultIds);
 	if ('error' in dogsResponse) {
 		dogsResponse.message += '\nFailed retrieving dogs';
 		return dogsResponse;
 	}
 
 	const nextParams = new URL(`${API.base}/${searchData.next}`).searchParams;
-	const nextCursor = parseInt(nextParams.get('from') ?? '') || 25; // TODO: hmmm this could be handled better
+	const nextCursor = parseInt(nextParams.get('from') ?? '') || 25;
 	const prevParams = new URL(`${API.base}/${searchData.prev}`).searchParams;
 	const prevCursor = parseInt(prevParams.get('from') ?? '') || 0;
 
@@ -107,12 +124,28 @@ export async function getBreeds({ request, fetch }: RequestEvent) {
  * If we fetch and we get > 100 or < 50 we try filtering by selecting all zip codes in the rect
  * that is the size of the distance. This only will run if we have a zip code.
  **/
-export async function getStateZips({ request, fetch }: RequestEvent) {
-	const urls = new URL(request.url);
-	const state = urls.searchParams.get('state');
-	const city = urls.searchParams.get('city') || '';
-	const zipCode = urls.searchParams.get('zip') || '';
-	const distance = urls.searchParams.get('distance') || 69; // default to expanding by 1 lat and long
+export async function getZipsFromLocation({ request, fetch, cookies }: RequestEvent) {
+	const reqBody: { states?: string[]; city?: string; size?: number } = {};
+
+	const url = new URL(request.url);
+
+	let state = url.searchParams.get('state');
+	if (!state) {
+		state = cookies.get('state') || '';
+	}
+	if (state) {
+		reqBody.states = [state];
+	}
+
+	let city = url.searchParams.get('city');
+	if (!city) {
+		city = cookies.get('city') || '';
+	}
+	if (city) {
+		reqBody.city = city;
+	}
+
+	reqBody.size = 100;
 
 	const response = await fetch(API.searchLocations, {
 		method: 'POST',
@@ -121,20 +154,22 @@ export async function getStateZips({ request, fetch }: RequestEvent) {
 			'Content-Type': 'application/json',
 			cookie: request.headers.get('cookie') || ''
 		},
-		body: JSON.stringify({ states: [state], city, size: 100 })
+		body: JSON.stringify(reqBody)
 	});
 	if (!response.ok) {
-		console.log("WE messsed up in the first fetch call")
+		console.log('WE messsed up in the first fetch call');
 		return { error: response.status, message: response.statusText };
 	}
 	const data = await response.json();
 
 	let results = data.results as Location[];
 
-	// I beleive there may be a bug in the search locations api where 
-	// GeoBoundingBox is not working. So we will try to filter by zip code return early and not try to expand the search
-	// leaving this here in case it gets fixed
-	/*
+
+	let zipCode = url.searchParams.get('zip') || '';
+	if (!zipCode) {
+		zipCode = cookies.get('zip') || ''
+	}
+	const distance = url.searchParams.get('distance') || 69; // default to expanding by 1 lat and long
 	if ((data.total >= 100 || data.total < 50) && zipCode) {
 		const specificLoc = results.filter((loc) => loc.zip_code == zipCode);
 		if (!specificLoc.length) {
@@ -145,8 +180,11 @@ export async function getStateZips({ request, fetch }: RequestEvent) {
 
 		// try getting enough by looking at what we have already.
 		const filteredRes = filterLocationsWithInRect(results, coords) as Location[];
+		console.log("filteredRes", filteredRes)
+		// I beleive there may be a bug in the search locations api where
+		// GeoBoundingBox is not working. So we will try to filter by zip code return early and not try to expand the search leaving this here in case it gets fixed
 
-		// not enough? lets try fetching again
+		/*// not enough? lets try fetching again
 		if (filteredRes.length < 50) {
 			console.log(filteredRes)
 			const expandedSearchResponse = await fetch(API.searchLocations, {
@@ -172,18 +210,22 @@ export async function getStateZips({ request, fetch }: RequestEvent) {
 				return { data: expandedSearchResults.results.map((loc) => loc.zip_code) };
 			}
 		}
+	*/
 		return { data: filteredRes.map((loc) => loc.zip_code) };
 	}
-	*/
 
 	return { data: results.map((loc) => loc.zip_code) };
 }
 
 function roundTo6(num: number): number {
-    return Math.round(num * 1_000_000) / 1_000_000;
+	return Math.round(num * 1_000_000) / 1_000_000;
 }
 
-function getGeoBoundingBox(lat: number, lon: number, distanceMiles: number): {top:Coordinates, bottom:Coordinates, left:Coordinates, right:Coordinates} {
+function getGeoBoundingBox(
+	lat: number,
+	lon: number,
+	distanceMiles: number
+): { top: Coordinates; bottom: Coordinates; left: Coordinates; right: Coordinates } {
 	const earthRadiusMiles = 3958.8; // Radius of the Earth in miles
 
 	// Convert distance from miles to radians
@@ -205,18 +247,17 @@ function getGeoBoundingBox(lat: number, lon: number, distanceMiles: number): {to
  * @param box - The GeoBoundingBox object
  * @returns true if the coordinate is inside the box, false otherwise
  */
-function isCoordInBoundingBox(
-    coord: { lat: number; lon: number },
-    box: GeoBoundingBox
-): boolean {
-    return (
-        coord.lat <= box.top.lat &&
-        coord.lat >= box.bottom.lat &&
-        coord.lon >= box.left.lon &&
-        coord.lon <= box.right.lon
-    );
+function isCoordInBoundingBox(coord: { lat: number; lon: number }, box: GeoBoundingBox): boolean {
+	return (
+		coord.lat <= box.top.lat &&
+		coord.lat >= box.bottom.lat &&
+		coord.lon >= box.left.lon &&
+		coord.lon <= box.right.lon
+	);
 }
 
 function filterLocationsWithInRect(locations: Location[], geoBoundingBox: GeoBoundingBox) {
-	return locations.filter((loc) => isCoordInBoundingBox({lat:loc.latitude, lon:loc.longitude}, geoBoundingBox));
+	return locations.filter((loc) =>
+		isCoordInBoundingBox({ lat: loc.latitude, lon: loc.longitude }, geoBoundingBox)
+	);
 }
