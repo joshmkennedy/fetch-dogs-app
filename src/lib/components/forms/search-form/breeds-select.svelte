@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Combobox from '$lib/components/ui/combobox/mycombobox.svelte';
+	import { HeartFilled } from 'svelte-radix';
 	type BreedsSelect = {
 		tags: { value: string; label?: string }[];
 		breeds: string[];
@@ -12,7 +13,7 @@
 		{#each tags as tag}
 			<div class="rounded-sm border bg-muted pl-2 flex">
 				<span class="whitespace-nowrap">{tag.label}</span>
-				<button class="aspect-square rounded-sm p-1 leading-none hover:bg-white"
+				<button type="button" class="aspect-square rounded-sm p-1 leading-none hover:bg-white"
 				onclick={()=>{
 					tags = tags.filter(t=>t.value != tag.value)
 				}}>&times;</button>
@@ -26,5 +27,7 @@
 			if (!value) return;
 			tags.push(value);
 		}}
-	/>
+	>
+		<HeartFilled slot="icon" class="fill-muted-foreground" />
+	</Combobox>
 </div>

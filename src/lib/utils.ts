@@ -94,3 +94,16 @@ export function dogSearchRequestObj(searchParams: string | DogSearchParams | und
 		credentials: 'include'
 	});
 }
+
+
+export type LocationSearchParams = {
+	city?:string;
+	state?:string;
+
+	size?:number;
+	from?:number;
+}
+
+export function parseLocationSearchParams(paramObj: LocationSearchParams){
+	const params = new URLSearchParams()	
+}

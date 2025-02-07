@@ -73,16 +73,15 @@ export type Breeds = string[];
 export type LocationSearchBody = {
 	city?: string;
 	states?: string[];
-	geoBoundingBox?: {
-		top?: Coordinates;
-		left?: Coordinates;
-		bottom?: Coordinates;
-		right?: Coordinates;
-		bottom_left?: Coordinates;
-		top_left?: Coordinates;
-	};
+	geoBoundingBox?: GeoBoundingBox;
 	size?: number;
 	from?: number;
+};
+export type GeoBoundingBox = {
+	top: Coordinates;
+	left: Coordinates;
+	bottom: Coordinates;
+	right: Coordinates;
 };
 /**
  * Note: total is the number of results for the query (not just the current page)

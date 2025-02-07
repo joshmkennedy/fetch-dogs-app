@@ -2,44 +2,84 @@
 	import { Combobox } from 'bits-ui';
 	import { flyAndScale } from '$lib/utils';
 	import { tick } from 'svelte';
-	import { CaretSort, HeartFilled } from 'svelte-radix';
-	export let name = 'result';
+	import { CaretSort} from 'svelte-radix';
+	export let name = '';
 	export let onChange: (value: { label?: string; value: string } | undefined) => void;
 	export let options: { label: string; value: string }[] = [];
 	export let label = 'Search';
+	export let removeOnSelect: boolean = true;
 
-	let inputValue = '';
+	let value:{ label?: string; value: string } = {label:"", value:""};
+	let open = false;
+
+	let hasIcon = $$slots['icon'];
+
+	export let inputValue = '';
+
 	let touchedInput = false;
 
 	$: filteredOptions =
 		inputValue && touchedInput
-			? options.filter((option) => option.value.toLowerCase().includes(inputValue.toLowerCase()))
+			? options.filter(
+					(option) =>
+						option.value.toLowerCase().includes(inputValue.toLowerCase()) ||
+						option.label.toLowerCase().includes(inputValue.toLowerCase())
+				)
 			: options;
 </script>
 
 <Combobox.Root
 	items={filteredOptions}
+	bind:selected={value}
+	bind:open
 	bind:inputValue
 	bind:touchedInput
+	
 	onSelectedChange={async (v) => {
 		onChange(v);
-		await tick()
-		inputValue = '';
-		touchedInput=false
+		if (removeOnSelect) {
+			await tick();
+			inputValue = '';
+			touchedInput = false;
+			value = {label:"", value:""}
+		}
 	}}
 >
-	<div class="relative">
-		<HeartFilled class="fill-muted-foreground"/>	
+	<div class="relative w-full">
+		{#if hasIcon}
+			<span class="absolute left-0 top-0 flex h-full items-center justify-center px-1">
+				<slot name="icon" />
+			</span>
+		{/if}
 		<Combobox.Input
-			class="h-input placeholder:text-foreground-alt/50 inline-flex w-[296px] truncate border bg-background px-8 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 focus:ring-offset-background"
+			bind:value={inputValue}
+			class={`rounded-sm text-base placeholder:text-foreground-alt/50 inline-flex w-full
+			truncate border bg-background pr-10 transition-colors
+			focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2
+			focus:ring-offset-background ${hasIcon ? 'pl-10' : ''}`}
 			placeholder={label}
 			aria-label={label}
+			autocomplete="off"
 		/>
-		<CaretSort/>
+		<div class="absolute right-0 top-0 flex h-full items-center justify-center p-1">
+		<button
+			type="button"
+			class="	hover:bg-muted px-1"
+			on:click={()=>(open = !open)}
+		>
+			<CaretSort />
+		</button>
+		<button type="button" on:click={()=>{
+			inputValue = ""
+			touchedInput = false
+			open = false
+			value = {label:"", value:""}
+		}}>clear</button>
+		</div>
 	</div>
 
 	<Combobox.Content
-		class="w-full rounded-xl border border-muted bg-background px-1 py-3 shadow-popover outline-none max-h-96 overflow-auto"
+		class="max-h-96 w-full overflow-auto rounded-xl border border-muted bg-background px-1 py-3 shadow-popover outline-none"
 		transition={flyAndScale}
 		sideOffset={8}
 	>

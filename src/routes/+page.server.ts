@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 
 export type PageData = {
 	searchData:	SearchDogsHandlerResponse;
-	breeds: Breeds | {error:number; message:string};
+	breeds: Breeds | {error:string; message:string};
 }
 
 export const load: PageServerLoad = async (event):Promise<PageData> => {
@@ -24,3 +24,10 @@ export const load: PageServerLoad = async (event):Promise<PageData> => {
 				: { error: '500', message: breeds.reason }
 	};
 };
+
+export const actions = {
+	default: async ({ request }) => {
+	}
+};
+
+
