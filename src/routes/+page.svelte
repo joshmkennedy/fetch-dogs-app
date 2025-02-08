@@ -12,14 +12,13 @@
 	let { breeds, searchData } = data;
 	let searchResults = $state<typeof searchData>(searchData);
 
-	let selectedBreeds = $state<{ label?: string; value: string }[]>([]);
-
 	SearchParamsStore.subscribe(async (params) => {
 		searchResults = await handleFilter(params);
 	});
 
 	async function handleFilter(searchDeps: typeof $SearchParamsStore) {
 		if (!browser) return;
+		console.log(searchDeps);
 
 		const params = new URLSearchParams();
 
@@ -64,6 +63,6 @@
 		</main>
 	</div>
 	<aside class="max-w-sm p-4">
-		<BreedsSelect bind:selectedBreeds={selectedBreeds} breeds={breeds as Breeds} />
+		<BreedsSelect breeds={breeds as Breeds} />
 	</aside>
 </div>
