@@ -36,7 +36,7 @@
 		<header class="border-b px-4 py-4">
 			<div class="flex w-full max-w-screen-lg justify-between gap-2">
 				<div>
-					<!-- <SortSelect /> -->
+					<SortSelect />
 				</div>
 				<UseLocationToggle />
 				<LocationsModal />

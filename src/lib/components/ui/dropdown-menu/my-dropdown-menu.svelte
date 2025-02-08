@@ -20,11 +20,13 @@
 		contentProps,
 		...restProps
 	}: Props = $props();
-
 	$effect(() => {
 		// hate this but Im running out of time
-		onChange(selectedItem);
+		if(selectedItem !== buttonText){
+			onChange(selectedItem);
+		}
 	});
+
 </script>
 
 <DropdownMenu.Root bind:open {...restProps}>

@@ -2,6 +2,7 @@ import cookies from 'browser-cookies';
 import { browser } from '$app/environment';
 import { derived, writable } from 'svelte/store';
 import type { DogSearchSortParam, SortDirection, SortCategory } from './types/api';
+import { page } from '$app/state';
 
 let initialZips: string[] = [];
 export function initializeZips() {
@@ -92,12 +93,24 @@ Favorites.subscribe((favorites) => {
 
 export const SelectedBreeds = writable<string[]>((browser && initializeSelectedBreeds()) || []);
 
-export const SortCategoryOption = writable<SortCategory>('breed');
-export const SortDirectionOption = writable<SortDirection>('asc');
-
+const initialSort =initializeSort();
+export const SortCategoryOption = writable<SortCategory>(initialSort.cat);
+export const SortDirectionOption = writable<SortDirection>(initialSort.dir)
+export function initializeSort() {
+	if(!browser) return {cat: 'breed', dir: 'asc'};
+	const param = page.url.searchParams.get('sort');
+	if(param){
+		const [cat, dir] = param.split(':');
+		return {cat, dir};
+	}
+	return {cat: 'breed', dir: 'asc'};
+}
 export const SortParam = derived([SortCategoryOption, SortDirectionOption], ([$SortCategoryOption, $SortDirectionOption]) => {
 	return `${$SortCategoryOption}:${$SortDirectionOption}` as DogSearchSortParam;
 });
+SortParam.subscribe((sortParam)=>{
+	console.log(sortParam)
+})
 
 // This derived state is what we will use to pass to the search function.
 // We will add subscriber that will run the search function when this state

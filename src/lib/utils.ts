@@ -107,8 +107,12 @@ export type LocationSearchParams = {
 	from?: number;
 };
 
-
+let ran = 0;
 export async function updateURLAndRevalidate($page) {
+	ran++;
+	if (ran > 10) {
+		throw new Error("over ran la function")	
+	}
 	const searchDeps = get(SearchParamsStore) as any;
 	if (!browser) return;
 
