@@ -5,8 +5,10 @@
 		| Record<string, string[]>;
 	let {
 		options,
-		handleClick
+		handleClick,
+		label
 	}: {
+		label:string;
 		options: OptionsType;
 		handleClick: (option: string) => void;
 		selectedValue: string;
@@ -42,7 +44,7 @@
 >
 	<Command.Input
 		class="focus-override h-input placeholder:text-foreground-alt/50 inline-flex w-[296px] truncate rounded-xl bg-background px-4 text-sm transition-colors focus:outline-none focus:ring-0"
-		placeholder="Search for something..."
+		placeholder={`Search for ${label}...`}
 	/>
 	<Command.List class="max-h-full overflow-y-auto overflow-x-hidden px-2 pb-2">
 		<Command.Viewport>
