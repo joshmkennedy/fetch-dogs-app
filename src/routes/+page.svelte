@@ -22,12 +22,21 @@
 	const puppies: Dog[] =  ((searchResults && !('error' in searchResults) && searchResults.dogs) || []);
 </script>
 
+{#if data.searchData.error}
+	<div class="flex flex-col gap-2">
+		<h1 class="text-2xl font-bold text-red-500">Error</h1>
+		<p class="text-sm text-muted-foreground">
+			{data.searchData.message}
+		</p>
+	</div>
+	{/if}
+
 <div class="flex flex-col-reverse md:flex-row-reverse">
 	<div class="flex flex-1 flex-col gap-6">
 		<header class="border-b px-4 py-4">
 			<div class="flex w-full max-w-screen-lg justify-between gap-2">
 				<div>
-					<SortSelect />
+					<!-- <SortSelect /> -->
 				</div>
 				<UseLocationToggle />
 				<LocationsModal />
@@ -35,8 +44,8 @@
 		</header>
 
 		<main class="flex-1 p-4">
-			{#if data.searchData.dogs.length}
-				<PuppyGrid puppies={data.searchData.dogs} />
+			{#if data.searchData?.dogs?.length}
+				<PuppyGrid puppies={data?.searchData?.dogs} />
 			{/if}
 			<Pagination navigate={(e) => console.log(e)} />
 		</main>

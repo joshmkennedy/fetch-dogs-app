@@ -3,14 +3,16 @@
 	import { LocationInfo } from '$lib/store';
 	import { updateURLAndRevalidate } from '$lib/utils';
 	import { page } from '$app/state';
+	import { tick } from 'svelte';
 
 	let canUse = $state($LocationInfo?.enabled ?? false);
 	LocationInfo.subscribe((locationInfo) => {
 		canUse = locationInfo?.enabled ?? false;
 	});
 	$effect(() => {
-		$LocationInfo!.enabled = canUse;
-		updateURLAndRevalidate(page);
+		if($LocationInfo?.enabled !== canUse){
+			$LocationInfo!.enabled = canUse;
+		}
 	});
 </script>
 
@@ -19,6 +21,10 @@
 		id="use-location"
 		bind:checked={canUse}
 		class="h-6 w-10 rounded-full bg-muted-foreground"
+		onclick={async ()=>{
+			await tick();
+			await updateURLAndRevalidate(page);
+		}}
 	/>
 	<label for="use-location" class=""> Use Location? </label>
 </div>
