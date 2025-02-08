@@ -102,13 +102,13 @@ export const SortParam = derived([SortCategoryOption, SortDirectionOption], ([$S
 // This derived state is what we will use to pass to the search function.
 // We will add subscriber that will run the search function when this state
 // changes
-export const SearchParamsStore = derived([LocationInfo, SelectedBreeds], ([$LocationInfo, $SelectedBreeds]) => {
+export const SearchParamsStore = derived([LocationInfo, SelectedBreeds, SortParam], ([$LocationInfo, $SelectedBreeds, $SortParam]) => {
 	return {
 		city: $LocationInfo?.city,
 		state: $LocationInfo?.state,
 		zip: $LocationInfo?.zip,
 		distance: $LocationInfo?.distance,
 		breeds: $SelectedBreeds,
-		sortBy: ''
+		sortBy: $SortParam, 
 	};
 });

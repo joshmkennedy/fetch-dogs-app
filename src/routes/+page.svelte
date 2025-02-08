@@ -7,6 +7,7 @@
 	import { SearchParamsStore } from '$lib/store';
 	import UseLocationToggle from '$lib/components/forms/use-location-toggle.svelte';
 	import { browser } from '$app/environment';
+	import SortSelect from '$lib/components/forms/sort-select.svelte';
 	let { data } = $props();
 
 	let { breeds, searchData } = data;
@@ -37,6 +38,9 @@
 		if(searchDeps?.state){
 			params.set('state', searchDeps?.state);
 		}
+		if(searchDeps?.sortBy){
+			params.set('sort', searchDeps?.sortBy);
+		}
 		goto(`/?${params.toString()}`);
 		return await fetch(`/api/search-dogs?${params.toString()}`).then((r) => r.json());
 	}
@@ -50,7 +54,9 @@
 	<div class="flex flex-1 flex-col gap-6">
 		<header class="border-b px-4 py-4">
 			<div class="flex w-full max-w-screen-lg justify-between gap-2">
-				<div></div>
+				<div>
+				<SortSelect />
+				</div>
 				<UseLocationToggle />
 				<LocationsModal />
 			</div>
