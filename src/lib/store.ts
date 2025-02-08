@@ -1,5 +1,6 @@
+import cookies from "browser-cookies";
 import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
+import { derived, writable } from 'svelte/store';
 
 
 let initialZips: string[] = [];
@@ -16,23 +17,22 @@ export function initializeZips() {
 }
 
 export type LocationInfoType = {
+	enabled: boolean;
 	city: string | null;
 	state: string | null;
 	zip: string | null;
 	distance: number | null;
 };
 
-let initialLocationInfo = { city: null, state: null, zip: null , distance: null};
+let initialLocationInfo = { city: null, state: null, zip: null, distance: null, enabled: false };
 export function initializeLocationInfo() {
-	const jsonLocationInfo = typeof window !== 'undefined' && localStorage.getItem('locationInfo');
-	if (jsonLocationInfo) {
-		try {
-			initialLocationInfo = JSON.parse(jsonLocationInfo);
-		} catch (e) {
-			initialLocationInfo = { city: null, state: null, zip: null, distance: null };
-		}
-	}
-	return initialLocationInfo;
+	const jsonLocationInfo: LocationInfoType = initialLocationInfo;
+	jsonLocationInfo.enabled = (typeof window !== 'undefined' && cookies.get('enabled') == 'true') 
+	jsonLocationInfo.city = (typeof window !== 'undefined' && cookies.get('city')) || '';
+	jsonLocationInfo.state = (typeof window !== 'undefined' && cookies.get('state')) || '';
+	jsonLocationInfo.zip = (typeof window !== 'undefined' && cookies.get('zip')) || '';
+	jsonLocationInfo.distance = (typeof window !== 'undefined' && parseInt(cookies.get('distance') ?? "")) || 69;
+	return jsonLocationInfo;
 }
 
 //╭─────────────────────────╮
@@ -53,14 +53,25 @@ export function initializeFavorites() {
 	return initialFavorites;
 }
 
-export const Zips = writable<string[] | false>(browser && initializeZips());
-Zips.subscribe((zips) => {
-	browser && localStorage.setItem('zips', JSON.stringify(zips));
-});
-
-export const LocationInfo = writable<LocationInfoType | false>(browser && initializeLocationInfo());
+export const LocationInfo = writable<LocationInfoType | undefined>((browser && initializeLocationInfo()) || undefined);
 LocationInfo.subscribe((locationInfo) => {
-	browser && localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
+	if (browser) {
+		if (locationInfo?.enabled == false || locationInfo?.enabled == true) {
+			cookies.set('enabled', locationInfo?.enabled.toString());
+		}
+		if (locationInfo?.city) {
+			cookies.set('city', locationInfo?.city);
+		}
+		if (locationInfo?.state) {
+			cookies.set('state', locationInfo?.state || '');
+		}
+		if (locationInfo?.zip) {
+			cookies.set('zip', locationInfo?.zip || '');
+		}
+		if (locationInfo?.distance) {
+			cookies.set('distance', locationInfo?.distance?.toString() || '');
+		}
+	}
 });
 
 export const Favorites = writable<FavoritesType | false>(browser && initializeFavorites());
@@ -68,4 +79,16 @@ Favorites.subscribe((favorites) => {
 	browser && localStorage.setItem('favorites', JSON.stringify(favorites));
 });
 
-
+// This derived state is what we will use to pass to the search function.
+// We will add subscriber that will run the search function when this state
+// changes
+export const SearchParamsStore = derived([LocationInfo], ([$LocationInfo]) => {
+	return {
+		city: $LocationInfo?.city,
+		state: $LocationInfo?.state,
+		zip: $LocationInfo?.zip,
+		distance: $LocationInfo?.distance,
+		breeds: [],
+		sortBy: "",
+	};
+})

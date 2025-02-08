@@ -14,23 +14,26 @@ import type { RequestEvent } from '@sveltejs/kit';
 export async function searchDogs(
 	event: RequestEvent
 ): Promise<DogsSearchResponse | { error: string; message: string }> {
-	const { fetch, request } = event;
+	const { fetch, request, cookies } = event;
 	const url = new URL(request.url);
+	const locationEnabeled = cookies.get('enabled') == 'true';
 
-	const zips = await getZipsFromLocation(event);
+	if (locationEnabeled) {
+		const zips = await getZipsFromLocation(event);
 
-	if ('error' in zips) {
-		return { error: zips.error?.toString() ?? '', message: zips.message ?? '' };
+		if ('error' in zips) {
+			return { error: zips.error?.toString() ?? '', message: zips.message ?? '' };
+		}
+
+		url.searchParams.delete('city');
+		url.searchParams.delete('state');
+		url.searchParams.delete('zip');
+		url.searchParams.delete('distance');
+
+		zips.data?.forEach((zip) => {
+			url.searchParams.append('zipCodes', zip);
+		});
 	}
-
-	url.searchParams.delete('city');
-	url.searchParams.delete('state');
-	url.searchParams.delete('zip');
-	url.searchParams.delete('distance');
-
-	zips.data?.forEach((zip) => {
-		url.searchParams.append('zipCodes', zip);
-	});
 
 	const searchRequest = dogSearchRequestObj(url.searchParams.toString());
 	searchRequest.headers.set('cookie', request.headers.get('cookie') || '');
@@ -145,7 +148,7 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 		reqBody.city = city;
 	}
 
-	reqBody.size = 100;
+	reqBody.size = 1000;
 
 	const response = await fetch(API.searchLocations, {
 		method: 'POST',
@@ -156,6 +159,7 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 		},
 		body: JSON.stringify(reqBody)
 	});
+	console.log('reqBody', reqBody);
 	if (!response.ok) {
 		console.log('WE messsed up in the first fetch call');
 		return { error: response.status, message: response.statusText };
@@ -164,23 +168,26 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 
 	let results = data.results as Location[];
 
-
 	let zipCode = url.searchParams.get('zip') || '';
 	if (!zipCode) {
-		zipCode = cookies.get('zip') || ''
+		zipCode = cookies.get('zip') || '';
 	}
 	const distance = url.searchParams.get('distance') || 69; // default to expanding by 1 lat and long
-	if ((data.total >= 100 || data.total < 50) && zipCode) {
+	if (data.total >= 100 && zipCode) {
 		const specificLoc = results.filter((loc) => loc.zip_code == zipCode);
 		if (!specificLoc.length) {
+			console.log('what happened');
 			return { error: 404, message: 'No results found, try a different zip code' };
 		}
 
-		const coords = getGeoBoundingBox(specificLoc[0].latitude, specificLoc[0].longitude, parseInt(distance.toString()) || 69);
+		const coords = getGeoBoundingBox(
+			specificLoc[0].latitude,
+			specificLoc[0].longitude,
+			parseInt(distance.toString()) || 69
+		);
 
 		// try getting enough by looking at what we have already.
 		const filteredRes = filterLocationsWithInRect(results, coords) as Location[];
-		console.log("filteredRes", filteredRes)
 		// I beleive there may be a bug in the search locations api where
 		// GeoBoundingBox is not working. So we will try to filter by zip code return early and not try to expand the search leaving this here in case it gets fixed
 
@@ -248,6 +255,7 @@ function getGeoBoundingBox(
  * @returns true if the coordinate is inside the box, false otherwise
  */
 function isCoordInBoundingBox(coord: { lat: number; lon: number }, box: GeoBoundingBox): boolean {
+	console.log({ coord, box });
 	return (
 		coord.lat <= box.top.lat &&
 		coord.lat >= box.bottom.lat &&

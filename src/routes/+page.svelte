@@ -1,36 +1,47 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { enhance } from '$app/forms';
-	import SearchForm from '$lib/components/forms/search-form.svelte';
-	import type { PageData } from './+page.server';
-	import Input from '$lib/components/ui/input/input.svelte';
 	import BreedsSelect from '$lib/components/forms/search-form/breeds-select.svelte';
 	import type { Breeds, Dog } from '$lib/types/api';
-	import StateSelect from '$lib/components/state-select.svelte';
-	import Locations from '$lib/components/forms/locations.svelte';
 	import LocationsModal from '$lib/components/forms/locations-modal.svelte';
 	import PuppyGrid from '$lib/components/puppy-grid.svelte';
+	import { SearchParamsStore } from '$lib/store';
+	import UseLocationToggle from '$lib/components/forms/use-location-toggle.svelte';
+	import { browser } from '$app/environment';
 	let { data } = $props();
 
 	let { breeds, searchData } = data;
 	let searchResults = $state<typeof searchData>(searchData);
 
 	let selectedBreeds = $state<{ label?: string; value: string }[]>([]);
-	let selectedState = $state<string>('');
 
-	async function handleFilter({ formElement }: { formElement: HTMLFormElement }) {
-		const formData = new FormData(formElement);
+	SearchParamsStore.subscribe(async (params) => {
+		searchResults = await handleFilter(params);
+	});
 
-		selectedBreeds.forEach((breed) => {
-			formData.append('breeds', breed.value);
+	async function handleFilter(searchDeps: typeof $SearchParamsStore) {
+		if (!browser) return;
+
+		const params = new URLSearchParams();
+
+		searchDeps.breeds.forEach((breed) => {
+			params.append('breeds', breed);
 		});
-
-		const data = new URLSearchParams(
-			[...formData].map(([key, value]) => [key, value.toString().trim()])
-		);
-		searchResults = await fetch(`/api/search-dogs?${data.toString()}`).then((r) => r.json());
-		goto(`/?${data.toString()}`);
+		if(searchDeps?.zip){
+		params.set('zip', searchDeps.zip);
+		}
+		if(searchDeps?.distance){
+			params.set('distance', searchDeps?.distance?.toString());
+		}
+		if(searchDeps?.city){
+			params.set('city', searchDeps?.city);
+		}
+		if(searchDeps?.state){
+			params.set('state', searchDeps?.state);
+		}
+		goto(`/?${params.toString()}`);
+		return await fetch(`/api/search-dogs?${params.toString()}`).then((r) => r.json());
 	}
+
 	const puppies: Dog[] = $derived(
 		(searchResults && !('error' in searchResults) && searchResults.dogs) || []
 	);
@@ -41,6 +52,7 @@
 		<header class="border-b px-4 py-4">
 			<div class="flex w-full max-w-screen-lg justify-between gap-2">
 				<div></div>
+				<UseLocationToggle />
 				<LocationsModal />
 			</div>
 		</header>
@@ -52,6 +64,6 @@
 		</main>
 	</div>
 	<aside class="max-w-sm p-4">
-		<BreedsSelect bind:tags={selectedBreeds} breeds={breeds as Breeds} />
+		<BreedsSelect bind:selectedBreeds={selectedBreeds} breeds={breeds as Breeds} />
 	</aside>
 </div>
