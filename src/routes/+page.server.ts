@@ -8,12 +8,13 @@ export type PageData = {
 }
 
 export const load: PageServerLoad = async (event):Promise<PageData> => {
+	try{
 	const [searchDogsData, breeds] = await Promise.allSettled([
 		searchDogsHandler(event),
 		getBreeds(event)
 	]);
-
-	return {
+	
+	const stuff = {
 		searchData:
 			searchDogsData.status === 'fulfilled'
 				? searchDogsData.value
@@ -23,4 +24,9 @@ export const load: PageServerLoad = async (event):Promise<PageData> => {
 				? breeds.value
 				: { error: '500', message: breeds.reason }
 	};
+	console.log(event.request.url)
+	return stuff;
+	} catch(e){
+		return e.toString();
+	}
 };

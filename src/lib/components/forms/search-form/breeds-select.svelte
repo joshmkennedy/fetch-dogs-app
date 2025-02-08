@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { updateURLAndRevalidate } from '$lib/utils';
 	import Command from '$lib/components/ui/command/my-command.svelte';
 	import { SelectedBreeds } from '$lib/store';
 	type BreedsSelect = {
@@ -6,10 +8,11 @@
 	};
 	let { breeds }: BreedsSelect = $props();
 
-	function findAndSelect(option: string) {
+	async function findAndSelect(option: string) {
 		console.log(option)
 		$SelectedBreeds.push(option);
 		$SelectedBreeds = $SelectedBreeds;
+		await updateURLAndRevalidate(page);
 	}
 </script>
 
@@ -21,8 +24,9 @@
 				<button
 					type="button"
 					class="aspect-square rounded-sm p-1 leading-none hover:bg-white"
-					onclick={() => {
+					onclick={async () => {
 						$SelectedBreeds = $SelectedBreeds.filter((t) => t != tag);
+						await updateURLAndRevalidate(page);
 					}}
 				>
 					&times;

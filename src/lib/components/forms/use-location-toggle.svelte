@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Switch } from '../ui/switch';
 	import { LocationInfo } from '$lib/store';
+	import { updateURLAndRevalidate } from '$lib/utils';
+	import { page } from '$app/state';
 
 	let canUse = $state($LocationInfo?.enabled ?? false);
 	LocationInfo.subscribe((locationInfo) => {
@@ -8,6 +10,7 @@
 	});
 	$effect(() => {
 		$LocationInfo!.enabled = canUse;
+		updateURLAndRevalidate(page);
 	});
 </script>
 

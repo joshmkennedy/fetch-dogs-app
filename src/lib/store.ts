@@ -104,6 +104,7 @@ export const SortParam = derived([SortCategoryOption, SortDirectionOption], ([$S
 // changes
 export const SearchParamsStore = derived([LocationInfo, SelectedBreeds, SortParam], ([$LocationInfo, $SelectedBreeds, $SortParam]) => {
 	return {
+		enabled: $LocationInfo?.enabled,
 		city: $LocationInfo?.city,
 		state: $LocationInfo?.state,
 		zip: $LocationInfo?.zip,

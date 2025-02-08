@@ -4,6 +4,10 @@ import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { API } from './config';
 import type { DogSearchParams } from './types/api';
+import { browser } from '$app/environment';
+import { SearchParamsStore } from './store';
+import { get } from 'svelte/store';
+import { goto } from '$app/navigation';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -89,21 +93,54 @@ export function dogSearchRequestObj(searchParams: string | DogSearchParams | und
 	if (typeof searchParams == 'object') {
 		searchParams = parseDogSearchParams(searchParams);
 	}
-	return new Request(`${API.searchDogs}?${searchParams ?? ""}`, {
+	return new Request(`${API.searchDogs}?${searchParams ?? ''}`, {
 		method: 'GET',
 		credentials: 'include'
 	});
 }
 
-
 export type LocationSearchParams = {
-	city?:string;
-	state?:string;
+	city?: string;
+	state?: string;
 
-	size?:number;
-	from?:number;
-}
+	size?: number;
+	from?: number;
+};
 
-export function parseLocationSearchParams(paramObj: LocationSearchParams){
-	const params = new URLSearchParams()	
+
+export async function updateURLAndRevalidate($page) {
+	const searchDeps = get(SearchParamsStore) as any;
+	if (!browser) return;
+
+	const params = $page.url.searchParams;
+
+	params.delete('breeds');
+	searchDeps.breeds.forEach((breed) => {
+		params.append('breeds', breed);
+	});
+	if (!searchDeps?.enabled) {
+		params.delete('zip');
+		params.delete('distance');
+		params.delete('city');
+		params.delete('state');
+		params.delete('sort');
+	} else {
+		if (searchDeps?.zip) {
+			params.set('zip', searchDeps.zip);
+		}
+
+		if (searchDeps?.distance) {
+			params.set('distance', searchDeps?.distance?.toString());
+		}
+		if (searchDeps?.city) {
+			params.set('city', searchDeps?.city);
+		}
+		if (searchDeps?.state) {
+			params.set('state', searchDeps?.state);
+		}
+	}
+	if (searchDeps?.sortBy) {
+		params.set('sort', searchDeps?.sortBy);
+	}
+	await goto($page.url.toString(), { invalidateAll: true });
 }

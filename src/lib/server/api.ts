@@ -17,7 +17,6 @@ export async function searchDogs(
 	const { fetch, request, cookies } = event;
 	const url = new URL(request.url);
 	const locationEnabeled = cookies.get('enabled') == 'true';
-
 	if (locationEnabeled) {
 		const zips = await getZipsFromLocation(event);
 
@@ -85,6 +84,7 @@ export type SearchDogsHandlerResponse =
  **/
 export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogsHandlerResponse> {
 	const searchData = await searchDogs(event);
+	console.log(searchData.resultIds[0])
 	if ('error' in searchData) {
 		searchData.message += '\nFailed searching for dogs';
 		return searchData;
@@ -159,9 +159,7 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 		},
 		body: JSON.stringify(reqBody)
 	});
-	console.log('reqBody', reqBody);
 	if (!response.ok) {
-		console.log('WE messsed up in the first fetch call');
 		return { error: response.status, message: response.statusText };
 	}
 	const data = await response.json();
@@ -176,7 +174,6 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 	if (data.total >= 100 && zipCode) {
 		const specificLoc = results.filter((loc) => loc.zip_code == zipCode);
 		if (!specificLoc.length) {
-			console.log('what happened');
 			return { error: 404, message: 'No results found, try a different zip code' };
 		}
 

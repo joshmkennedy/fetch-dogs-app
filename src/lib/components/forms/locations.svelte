@@ -4,19 +4,22 @@
 	import { LocationInfo } from '$lib/store';
 	import { onMount } from 'svelte';
 	import { Button } from '../ui/button';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { updateURLAndRevalidate } from '$lib/utils';
 
-	let { onSubmit: _onSubmit }:{_onSumbit:()=>void} = $props();
+	let { onSubmit: _onSubmit }: { _onSumbit: () => void } = $props();
 
 	let selectedState = $state<string>('');
 	let zip = $state<string>('');
 	let city = $state<string>('');
 	let distance = $state<number>(69);
 	onMount(() => {
-		if ($LocationInfo !== false) {
-			city = $LocationInfo.city || '';
-			selectedState = $LocationInfo.state || '';
-			zip = $LocationInfo.zip || '';
-			distance = $LocationInfo.distance || 69;
+		if ($LocationInfo) {
+			city = $LocationInfo?.city || '';
+			selectedState = $LocationInfo?.state || '';
+			zip = $LocationInfo?.zip || '';
+			distance = $LocationInfo?.distance || 69;
 		}
 	});
 	async function saveLocationInfo(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
@@ -30,11 +33,8 @@
 		};
 		$LocationInfo = submission;
 
-		const params = new URLSearchParams(
-			[...Object.entries(submission)].map(([key, val]) => [key, val?.toString() || ''])
-		).toString();
-
 		_onSubmit();
+		await updateURLAndRevalidate(page);
 	}
 </script>
 
@@ -60,9 +60,9 @@
 					bind:value={zip}
 				/>
 			</div>
-			<div class="flex flex-col gap-2 mt-2">
+			<div class="mt-2 flex flex-col gap-2">
 				<label for="distance">How Far should we look?</label>
-				<div class="flex gap-2 items-center">
+				<div class="flex items-center gap-2">
 					<input
 						class="w-full max-w-full"
 						type="range"

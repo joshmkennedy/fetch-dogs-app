@@ -1,53 +1,25 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import BreedsSelect from '$lib/components/forms/search-form/breeds-select.svelte';
 	import type { Breeds, Dog } from '$lib/types/api';
 	import LocationsModal from '$lib/components/forms/locations-modal.svelte';
 	import PuppyGrid from '$lib/components/puppy-grid.svelte';
+	import Pagination from '$lib/components/ui/pagination/my-pagination.svelte';
 	import { SearchParamsStore } from '$lib/store';
 	import UseLocationToggle from '$lib/components/forms/use-location-toggle.svelte';
 	import { browser } from '$app/environment';
 	import SortSelect from '$lib/components/forms/sort-select.svelte';
+	import { onMount } from 'svelte';
 	let { data } = $props();
 
 	let { breeds, searchData } = data;
-	let searchResults = $state<typeof searchData>(searchData);
+	let searchResults = data.searchData;
 
-	SearchParamsStore.subscribe(async (params) => {
-		searchResults = await handleFilter(params);
-	});
+	// SearchParamsStore.subscribe(async (params) => {
+	// 	searchResults = await handleFilter(params);
+	// });
 
-	async function handleFilter(searchDeps: typeof $SearchParamsStore) {
-		if (!browser) return;
-		console.log(searchDeps);
-
-		const params = new URLSearchParams();
-
-		searchDeps.breeds.forEach((breed) => {
-			params.append('breeds', breed);
-		});
-		if(searchDeps?.zip){
-		params.set('zip', searchDeps.zip);
-		}
-		if(searchDeps?.distance){
-			params.set('distance', searchDeps?.distance?.toString());
-		}
-		if(searchDeps?.city){
-			params.set('city', searchDeps?.city);
-		}
-		if(searchDeps?.state){
-			params.set('state', searchDeps?.state);
-		}
-		if(searchDeps?.sortBy){
-			params.set('sort', searchDeps?.sortBy);
-		}
-		goto(`/?${params.toString()}`);
-		return await fetch(`/api/search-dogs?${params.toString()}`).then((r) => r.json());
-	}
-
-	const puppies: Dog[] = $derived(
-		(searchResults && !('error' in searchResults) && searchResults.dogs) || []
-	);
+	const puppies: Dog[] =  ((searchResults && !('error' in searchResults) && searchResults.dogs) || []);
 </script>
 
 <div class="flex flex-col-reverse md:flex-row-reverse">
@@ -55,7 +27,7 @@
 		<header class="border-b px-4 py-4">
 			<div class="flex w-full max-w-screen-lg justify-between gap-2">
 				<div>
-				<SortSelect />
+					<SortSelect />
 				</div>
 				<UseLocationToggle />
 				<LocationsModal />
@@ -63,9 +35,10 @@
 		</header>
 
 		<main class="flex-1 p-4">
-			{#if puppies.length}
-				<PuppyGrid {puppies} />
+			{#if data.searchData.dogs.length}
+				<PuppyGrid puppies={data.searchData.dogs} />
 			{/if}
+			<Pagination navigate={(e) => console.log(e)} />
 		</main>
 	</div>
 	<aside class="max-w-sm p-4">
