@@ -21,7 +21,7 @@
       <Dialog.Description>
 				Where should we find your buddy from?
       </Dialog.Description>
-			<Locations _onSubmit={()=>{isOpen = false}}/>
+			<Locations onSubmit={()=>{isOpen = false}}/>
     </Dialog.Header>
   </Dialog.Content>
 </Dialog.Root>

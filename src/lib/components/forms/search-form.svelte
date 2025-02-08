@@ -12,6 +12,6 @@
 
 	<LocationSearch bind:zips />
 	
-	<BreedsSelect bind:tags breeds={data.breeds}/>
+	<BreedsSelect bind:selectedBreeds={tags} breeds={data.breeds}/>
 	<Button type="submit">Find My New Buddy</Button>
 </form>

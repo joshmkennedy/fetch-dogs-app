@@ -22,6 +22,7 @@
 	async function saveLocationInfo(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 		event.preventDefault();
 		const submission = {
+			enabled: true,
 			city: city || null,
 			state: selectedState || null,
 			zip: zip || null,
@@ -46,7 +47,7 @@
 			</div>
 			<div class="flex flex-col gap-2">
 				<label for="state">State</label>
-				<StateSelect bind:selectedState />
+				<StateSelect bind:selectedStateCode={selectedState} />
 			</div>
 			<div class="flex flex-col gap-2">
 				<label for="zip">Zip</label>
