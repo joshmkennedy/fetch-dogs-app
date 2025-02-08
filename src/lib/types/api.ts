@@ -24,8 +24,8 @@ export type Coordinates = {
 };
 
 export type SortDirection = 'asc' | 'desc';
-export type SortField = 'breed' | 'name' | 'age';
-export type DogSearchSortParam = `${SortField}:${SortDirection}`;
+export type SortCategory = 'breed' | 'name' | 'age';
+export type DogSearchSortParam = `${SortCategory}:${SortDirection}`;
 export type DogSearchParams = {
 	breeds?: string[];	
 	zipCodes?: string[];
