@@ -4,6 +4,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { redirect } from '@sveltejs/kit';
 	import { arraysAreEqual } from '$lib/utils';
+	import { goto } from '$app/navigation';
 
 	function resetMatched() {
 		$Matched = undefined;
@@ -15,7 +16,7 @@
 	function fullReset() {
 		resetMatched();
 		resetFavorites();
-		goto('/',{invalidateAll:true});
+		goto('/', { invalidateAll: true });
 	}
 </script>
 
@@ -23,7 +24,9 @@
 	<Dialog.Root
 		open={Boolean($Matched && $Matched.id)}
 		onOpenChange={(open) => {
-			console.log(open);
+			if (!open && $Matched && $Matched.id) {
+				$Matched = undefined;
+			}
 		}}
 	>
 		<Dialog.Content class="w-full min-w-[375px] max-w-[600px]">
@@ -34,7 +37,11 @@
 				</Dialog.Description>
 			</Dialog.Header>
 			<div class="">
-				<img src={$Matched.img} alt={$Matched.id} class="h-full w-full aspect-square object-cover" />
+				<img
+					src={$Matched.img}
+					alt={$Matched.id}
+					class="aspect-square h-full w-full object-cover"
+				/>
 			</div>
 
 			<div class="flex justify-end gap-2">
