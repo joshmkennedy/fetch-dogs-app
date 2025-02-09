@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog";
 	import {LocationInfo} from '$lib/store';
-	import Locations from "./locations.svelte";
+	import Locations from "$lib/components/forms/locations.svelte";
 	let isOpen = $state(false);
 
 	const currentLocation = $derived(($LocationInfo && $LocationInfo.state) ?

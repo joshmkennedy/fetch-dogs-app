@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from "$lib/components/ui/button/button.svelte";
-	import Input from "../ui/input/input.svelte";
+	import Input from "$lib/components/ui/input/input.svelte";
 
 </script>
 

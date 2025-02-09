@@ -1,21 +1,19 @@
 <script lang="ts">
 	import { afterNavigate, goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import BreedsSelect from '$lib/components/forms/search-form/breeds-select.svelte';
+	import BreedsSelect from '$lib/components/forms/breeds-select.svelte';
 	import type { Breeds } from '$lib/types/api';
-	import LocationsModal from '$lib/components/forms/locations-modal.svelte';
+	import LocationsModal from '$lib/components/locations-modal.svelte';
 	import PuppyGrid from '$lib/components/puppy-grid.svelte';
 	import Pagination from '$lib/components/ui/pagination/my-pagination.svelte';
 	import {
-		Favorites,
 		initializeSelectedBreeds,
-		SearchParamsStore,
 		SelectedBreeds
 	} from '$lib/store';
 	import UseLocationToggle from '$lib/components/forms/use-location-toggle.svelte';
 	import SortSelect from '$lib/components/forms/sort-select.svelte';
 	import FavoritesModal from '$lib/components/favorites-modal.svelte';
-	import MatchedModal from '$lib/components/ui/matched-modal.svelte';
+	import MatchedModal from '$lib/components/matched-modal.svelte';
 	import { arraysAreEqual } from '$lib/utils';
 	let { data } = $props();
 

@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { Favorites, initializeSelectedBreeds, Matched, SelectedBreeds } from '$lib/store';
-	import { Button } from './button';
+	import { Favorites, Matched } from '$lib/store';
+	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { redirect } from '@sveltejs/kit';
-	import { arraysAreEqual } from '$lib/utils';
 	import { goto } from '$app/navigation';
 
 	function resetMatched() {

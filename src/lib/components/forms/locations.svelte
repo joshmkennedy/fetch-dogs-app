@@ -1,19 +1,18 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import StateSelect from '../state-select.svelte';
 	import { LocationInfo } from '$lib/store';
 	import { onMount } from 'svelte';
 	import { Button } from '../ui/button';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import { updateURLAndRevalidate } from '$lib/utils';
 
-	let { onSubmit: _onSubmit }: { _onSumbit: () => void } = $props();
+	let { onSubmit: _onSubmit }: { onSumbit: () => void } = $props();
 
 	let selectedState = $state<string>('');
 	let zip = $state<string>('');
 	let city = $state<string>('');
 	let distance = $state<number>(69);
+
 	onMount(() => {
 		if ($LocationInfo) {
 			city = $LocationInfo?.city || '';
@@ -22,6 +21,7 @@
 			distance = $LocationInfo?.distance || 69;
 		}
 	});
+
 	async function saveLocationInfo(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
 		event.preventDefault();
 		const submission = {
