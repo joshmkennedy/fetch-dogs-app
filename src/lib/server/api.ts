@@ -15,7 +15,7 @@ export async function searchDogs(
 	const { fetch, request, cookies } = event;
 	const url = new URL(request.url);
 	const locationEnabeled = cookies.get('enabled') == 'true';
-	if (locationEnabeled) {
+	if (locationEnabeled && (cookies.get("state") || url.searchParams.get('state'))) {
 		const zips = await getZipsFromLocation(event);
 
 		if ('error' in zips) {
