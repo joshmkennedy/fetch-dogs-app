@@ -1,21 +1,8 @@
 import cookies from 'browser-cookies';
 import { browser } from '$app/environment';
 import { derived, writable } from 'svelte/store';
-import type { DogSearchSortParam, SortDirection, SortCategory } from './types/api';
+import type { DogSearchSortParam, SortDirection, SortCategory, Dog } from './types/api';
 import { page } from '$app/state';
-
-let initialZips: string[] = [];
-export function initializeZips() {
-	const jsonZips = localStorage.getItem('zips');
-	if (jsonZips) {
-		try {
-			initialZips = JSON.parse(jsonZips);
-		} catch (e) {
-			initialZips = [];
-		}
-	}
-	return initialZips;
-}
 
 export type LocationInfoType = {
 	enabled: boolean;
@@ -37,11 +24,7 @@ export function initializeLocationInfo() {
 	return jsonLocationInfo;
 }
 
-//╭─────────────────────────╮
-//│    [   Favorites   ]    │
-//╰─────────────────────────╯
-
-export type FavoritesType = string[];
+export type FavoritesType = Dog[];
 let initialFavorites: FavoritesType = [];
 export function initializeFavorites() {
 	const jsonFavorites = localStorage.getItem('favorites');
@@ -57,11 +40,22 @@ export function initializeFavorites() {
 
 export function initializeSelectedBreeds(): string[] {
 	const urlBreeds = new URLSearchParams(window.location.search).getAll('breeds');
-	if(urlBreeds.length){
+	if (urlBreeds.length) {
 		return urlBreeds;
 	}
 	return [];
 }
+
+export function initializeSort() {
+	if (!browser) return { cat: 'breed', dir: 'asc' };
+	const param = page.url.searchParams.get('sort');
+	if (param) {
+		const [cat, dir] = param.split(':');
+		return { cat, dir };
+	}
+	return { cat: 'breed', dir: 'asc' };
+}
+
 
 export const LocationInfo = writable<LocationInfoType | undefined>(
 	(browser && initializeLocationInfo()) || undefined
@@ -93,36 +87,35 @@ Favorites.subscribe((favorites) => {
 
 export const SelectedBreeds = writable<string[]>((browser && initializeSelectedBreeds()) || []);
 
-const initialSort =initializeSort();
+const initialSort = initializeSort();
 export const SortCategoryOption = writable<SortCategory>(initialSort.cat);
-export const SortDirectionOption = writable<SortDirection>(initialSort.dir)
-export function initializeSort() {
-	if(!browser) return {cat: 'breed', dir: 'asc'};
-	const param = page.url.searchParams.get('sort');
-	if(param){
-		const [cat, dir] = param.split(':');
-		return {cat, dir};
+export const SortDirectionOption = writable<SortDirection>(initialSort.dir);
+export const SortParam = derived(
+	[SortCategoryOption, SortDirectionOption],
+	([$SortCategoryOption, $SortDirectionOption]) => {
+		return `${$SortCategoryOption}:${$SortDirectionOption}` as DogSearchSortParam;
 	}
-	return {cat: 'breed', dir: 'asc'};
-}
-export const SortParam = derived([SortCategoryOption, SortDirectionOption], ([$SortCategoryOption, $SortDirectionOption]) => {
-	return `${$SortCategoryOption}:${$SortDirectionOption}` as DogSearchSortParam;
+);
+SortParam.subscribe((sortParam) => {
+	console.log(sortParam);
 });
-SortParam.subscribe((sortParam)=>{
-	console.log(sortParam)
-})
 
 // This derived state is what we will use to pass to the search function.
 // We will add subscriber that will run the search function when this state
 // changes
-export const SearchParamsStore = derived([LocationInfo, SelectedBreeds, SortParam], ([$LocationInfo, $SelectedBreeds, $SortParam]) => {
-	return {
-		enabled: $LocationInfo?.enabled,
-		city: $LocationInfo?.city,
-		state: $LocationInfo?.state,
-		zip: $LocationInfo?.zip,
-		distance: $LocationInfo?.distance,
-		breeds: $SelectedBreeds,
-		sortBy: $SortParam, 
-	};
-});
+export const SearchParamsStore = derived(
+	[LocationInfo, SelectedBreeds, SortParam],
+	([$LocationInfo, $SelectedBreeds, $SortParam]) => {
+		return {
+			enabled: $LocationInfo?.enabled,
+			city: $LocationInfo?.city,
+			state: $LocationInfo?.state,
+			zip: $LocationInfo?.zip,
+			distance: $LocationInfo?.distance,
+			breeds: $SelectedBreeds,
+			sortBy: $SortParam
+		};
+	}
+);
+
+export const Matched = writable<Dog|undefined>(undefined);

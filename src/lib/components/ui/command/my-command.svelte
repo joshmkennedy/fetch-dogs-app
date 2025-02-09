@@ -1,52 +1,60 @@
 <script lang="ts">
 	import { Command } from 'bits-ui';
-	type OptionsType =
-		| string[]
-		| Record<string, string[]>;
+	import type { Snippet } from 'svelte';
+	type OptionsType = string[] | Record<string, string[]>;
 	let {
 		options,
 		handleClick,
-		label
+		label,
+		itemsComp
 	}: {
-		label:string;
+		label: string;
+		itemsComp: Snippet<[string]>;
 		options: OptionsType;
 		handleClick: (option: string) => void;
-		selectedValue: string;
 	} = $props();
+
+	let inputValue = $state('');
 </script>
 
 {#snippet singleGroup(options: string[])}
 	<Command.GroupItems class="">
 		{#each options as option}
 			<Command.Item
-				class="flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition-colors hover:bg-muted/10 focus:outline-none focus:ring-0"
-				onclick={() => handleClick(option)}
+				class="flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition-colors data-[selected]:bg-muted hover:bg-muted focus:outline-none focus:ring-0"
+				onclick={() => (inputValue = '') || handleClick(option)}
 			>
-				<span class="whitespace-nowrap">{option}</span>
+				{#if itemsComp}
+					{@render itemsComp(option)}
+				{:else}
+					<span class="whitespace-nowrap">{option}</span>
+				{/if}
 			</Command.Item>
 		{/each}
 	</Command.GroupItems>
 {/snippet}
 
-{#snippet groupedOptions(options: Record<string, string[]>) }
+{#snippet groupedOptions(options: Record<string, string[]>)}
 	{#each Object.entries(options) as [heading, innerOptions]}
 		<Command.Group class="flex flex-col gap-1">
-			<Command.GroupHeading class="text-sm font-medium text-muted-foreground">
+			<Command.GroupHeading class="text-[10px] text-slate-500 uppercase py-3 font-medium text-muted-foreground">
 				{heading}
 			</Command.GroupHeading>
-				{@render singleGroup(innerOptions)}
+			{@render singleGroup(innerOptions)}
 		</Command.Group>
+		<Command.Separator class="h-px bg-border my-3.5" />
 	{/each}
 {/snippet}
 
 <Command.Root
-	class="flex h-full w-full flex-col divide-y divide-border self-start overflow-hidden rounded-xl border border-muted bg-background"
+	class="flex h-full w-full flex-col self-start overflow-hidden bg-background gap-3"
 >
 	<Command.Input
-		class="focus-override h-input placeholder:text-foreground-alt/50 inline-flex w-[296px] truncate rounded-xl bg-background px-4 text-sm transition-colors focus:outline-none focus:ring-0"
+		bind:value={inputValue}
+		class="focus-override h-input border placeholder:text-foreground-alt/50 inline-flex w-full truncate border-slate-200 bg-background px-4 text-sm transition-colors rounded-sm focus:outline-none focus:ring-0"
 		placeholder={`Search for ${label}...`}
 	/>
-	<Command.List class="max-h-full overflow-y-auto overflow-x-hidden px-2 pb-2">
+	<Command.List class="h-[400px] md:h-[85vh] overflow-y-auto overflow-x-hidden px-2 pb-2">
 		<Command.Viewport>
 			<Command.Empty
 				class="flex w-full items-center justify-center pb-6 pt-8 text-sm text-muted-foreground"

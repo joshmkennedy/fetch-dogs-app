@@ -73,6 +73,7 @@ export async function getDogs(
 export type SearchDogsHandlerResponse =
 	| {
 		dogs: DogsResponseBody;
+		total:number
 		next: number;
 		prev: number;
 	}
@@ -84,7 +85,6 @@ export type SearchDogsHandlerResponse =
  **/
 export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogsHandlerResponse> {
 	const searchData = await searchDogs(event);
-	console.log(searchData.resultIds[0])
 	if ('error' in searchData) {
 		searchData.message += '\nFailed searching for dogs';
 		return searchData;
@@ -102,6 +102,7 @@ export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogs
 	const prevCursor = parseInt(prevParams.get('from') ?? '') || 0;
 
 	return {
+		total: searchData.total,
 		dogs: dogsResponse,
 		next: nextCursor,
 		prev: prevCursor

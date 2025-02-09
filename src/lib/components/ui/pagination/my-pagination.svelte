@@ -1,10 +1,17 @@
 <script lang="ts">
   import { Pagination } from "bits-ui";
 	import { CaretLeft, CaretRight } from "svelte-radix";
-	let { navigate } = $props();
+	import {page} from '$app/state';
+	import { goto } from "$app/navigation";
+	let {count, navigate, perPage, currentPage } = $props();
+	console.log(currentPage)
+	console.log(perPage, currentPage, count)
 </script>
  
-<Pagination.Root count={100} perPage={10} onPageChange={(page) => console.log(page) || navigate(page)}>
+<Pagination.Root {count} bind:page={currentPage} {perPage} onPageChange={(p) => {
+	page.url.searchParams.set('from', ((p - 1)*perPage).toString());
+	goto(page.url.toString(), {invalidateAll:true});
+}}>
   {#snippet children({ pages, range })}
     <div class="my-8 flex items-center">
       <Pagination.PrevButton

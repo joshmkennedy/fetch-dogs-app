@@ -1,5 +1,5 @@
 import { PUBLIC_API } from '$env/static/public';
-
+export { default as BREEDIMAGES } from './breedImages.json';
 export const API = {
 	base: PUBLIC_API,
 
@@ -72,4 +72,4 @@ export const STATES = [
 	{ Kansas: 'KS' },
 	{ 'Northern Mariana Islands': 'MP' },
 	{ Wyoming: 'WY' }
-] as Record<string, string>[]; 
+] as Record<string, string>[];

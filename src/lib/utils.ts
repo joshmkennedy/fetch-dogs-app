@@ -74,15 +74,14 @@ export function parseDogSearchParams(paramObj: DogSearchParams) {
 	if ('zipCodes' in paramObj && paramObj.zipCodes) {
 		params.set('zipCodes', parseArrayToSearchParams(paramObj.zipCodes));
 	}
-	if ('size' in paramObj && paramObj.size) {
-		params.set('size', paramObj.size.toString());
-	}
+
 	if ('from' in paramObj && paramObj.from) {
 		params.set('from', paramObj.from.toString());
 	}
 	if ('sort' in paramObj && paramObj.sort) {
 		params.set('sort', paramObj.sort);
 	}
+	params.set('size', '21');
 	return params.toString();
 }
 
@@ -107,17 +106,13 @@ export type LocationSearchParams = {
 	from?: number;
 };
 
-let ran = 0;
 export async function updateURLAndRevalidate($page) {
-	ran++;
-	if (ran > 10) {
-		throw new Error("over ran la function")	
-	}
 	const searchDeps = get(SearchParamsStore) as any;
 	if (!browser) return;
 
 	const params = $page.url.searchParams;
 
+	params.delete('from'); // if this is called we wnat to start at the beg
 	params.delete('breeds');
 	searchDeps.breeds.forEach((breed) => {
 		params.append('breeds', breed);
@@ -147,4 +142,16 @@ export async function updateURLAndRevalidate($page) {
 		params.set('sort', searchDeps?.sortBy);
 	}
 	await goto($page.url.toString(), { invalidateAll: true });
+}
+
+export function arraysAreEqual(a, b) {
+	if (a.length !== b.length) return false;
+
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] !== b[i]) {
+			return false;
+		}
+	}
+
+	return true;
 }

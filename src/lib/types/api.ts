@@ -39,6 +39,7 @@ export type DogSearchParams = {
 
 export type DogsSearchResponse = {
 	resultIds: string[];
+	total:number;
 	next:string;
 	prev:string;
 }

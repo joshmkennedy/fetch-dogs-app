@@ -5,7 +5,7 @@
 	console.log(puppies[0].id)
 </script>
 
-<div class="grid grid-cols-3 gap-4">
+<div class="grid sm:grid-cols-2 grid-cols-1 lg:grid-cols-3 gap-4">
 	{#each puppies as puppy}
 		<PuppyCard {puppy}/>
 	{/each}

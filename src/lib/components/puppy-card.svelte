@@ -1,13 +1,26 @@
 <script lang="ts">
 	import type { Dog } from '$lib/types/api';
 	import HeartFilled from 'svelte-radix/HeartFilled.svelte';
+	import Heart from 'svelte-radix/Heart.svelte';
 	import Location from '$lib/components/ui/icons/location.svelte';
+	import { Favorites } from '$lib/store';
 	import { CountdownTimer } from 'svelte-radix';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import type { ComponentType } from 'svelte';
 
 	const { puppy }: { puppy: Dog } = $props();
+
+	function toggleFav(puppy: Dog) {
+		if ($Favorites && $Favorites.some((p) => p.id == puppy.id)) {
+			$Favorites = $Favorites.filter((f) => f.id != puppy.id);
+		} else {
+			$Favorites.push(puppy);
+		}
+		$Favorites = $Favorites;
+	}
 </script>
 
-{#snippet attribute(Icon, label, value)}
+{#snippet attribute(Icon:ComponentType, label:string, value:string)}
 	<div class="flex items-center gap-2">
 		{#if Icon}
 			<Icon class="h-3 w-3 fill-muted-foreground text-muted-foreground" />
@@ -17,11 +30,23 @@
 	</div>
 {/snippet}
 
-<div class="flex flex-col gap-2 rounded-sm border p-2">
-	<header class="flex gap-0 justify-between">
+<div class="flex flex-col gap-2 rounded-sm border p-2 min-w-full">
+	<header class="flex items-baseline justify-between gap-0">
 		<h3 class="text-lg font-medium text-primary">
 			{puppy.name}
 		</h3>
+		<div>
+			<Button
+				class="h-8 w-8 bg-transparent shadow-none hover:bg-muted"
+				onclick={() => toggleFav(puppy)}
+			>
+				{#if $Favorites && $Favorites.some((p) => p.id == puppy.id)}
+					<HeartFilled class="h-3 w-3 shrink-0 fill-primary" />
+				{:else}
+					<Heart class="h-3 w-3 shrink-0 text-muted-foreground" />
+				{/if}
+			</Button>
+		</div>
 	</header>
 	<div>
 		<img src={puppy.img} alt={puppy.name} class="aspect-square w-full object-cover" />
