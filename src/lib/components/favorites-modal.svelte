@@ -41,7 +41,7 @@
 
 				<Button onclick={getMatched}>Get Matched</Button>
 			{:else}
-				<p class="text-sm text-slate-400">Heart your favorites to get matched</p>
+				<p class="text-sm text-muted-foreground/60">Heart your favorites to get matched</p>
 			{/if}
 		</div>
 		<Dialog.Content class="w-fit min-w-[375px] max-w-[600px]">
@@ -53,5 +53,8 @@
 				<FavoritesCarousel {getMatched} />
 			</div>
 		</Dialog.Content>
+
+		<Dialog.Overlay class="bg-purple-500/20 backdrop-blur-sm" />
+
 	</Dialog.Root>
 </div>

@@ -9,7 +9,7 @@
 </script>
  
 <Dialog.Root bind:open={isOpen} >
-  <Dialog.Trigger class="text-left p-2 rounded-sm hover:bg-muted">
+  <Dialog.Trigger class="text-left p-2 rounded-sm hover:bg-muted w-fit">
 		<span class="font-medium text-xs text-muted-foreground block">
 			Location:
 		</span>
@@ -24,5 +24,7 @@
 			<Locations onSubmit={()=>{isOpen = false}}/>
     </Dialog.Header>
   </Dialog.Content>
+	<Dialog.Overlay class="bg-purple-500/20 backdrop-blur-sm" />
+
 </Dialog.Root>
 

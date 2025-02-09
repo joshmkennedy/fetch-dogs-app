@@ -26,7 +26,7 @@
 	}
 </script>
 
-<div class="flex gap-2 rounded-lg border border-muted p-0.5">
+<div class="flex gap-0.5 rounded-lg border border-muted p-0.5">
 	<DropdownMenu
 		bind:buttonText={$SelectedCategory}
 		selectedItem={$SelectedCategory}
@@ -38,6 +38,7 @@
 		}}
 		items={sortCategoryOptions}
 	/>
+	<span class="w-[1px] h-full bg-border"></span>
 	<DropdownMenu
 		bind:buttonText={$SelectedDirection}
 		selectedItem={$SelectedDirection}

@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 import { API } from './config';
-import type { DogSearchParams } from './types/api';
+import type { Coordinates, DogSearchParams, GeoBoundingBox, Location } from './types/api';
 import { browser } from '$app/environment';
 import { SearchParamsStore } from './store';
 import { get } from 'svelte/store';
@@ -106,11 +106,11 @@ export type LocationSearchParams = {
 	from?: number;
 };
 
-export async function updateURLAndRevalidate($page) {
+export async function updateURLAndRevalidate(page) {
 	const searchDeps = get(SearchParamsStore) as any;
 	if (!browser) return;
 
-	const params = $page.url.searchParams;
+	const params = page.url.searchParams;
 
 	params.delete('from'); // if this is called we wnat to start at the beg
 	params.delete('breeds');
@@ -141,7 +141,7 @@ export async function updateURLAndRevalidate($page) {
 	if (searchDeps?.sortBy) {
 		params.set('sort', searchDeps?.sortBy);
 	}
-	await goto($page.url.toString(), { invalidateAll: true });
+	await goto(page.url.toString(), { invalidateAll: true });
 }
 
 export function arraysAreEqual(a, b) {
@@ -154,4 +154,49 @@ export function arraysAreEqual(a, b) {
 	}
 
 	return true;
+}
+export function roundTo6(num: number): number {
+	return Math.round(num * 1_000_000) / 1_000_000;
+}
+
+export function getGeoBoundingBox(
+	lat: number,
+	lon: number,
+	distanceMiles: number
+): { top: Coordinates; bottom: Coordinates; left: Coordinates; right: Coordinates } {
+	const earthRadiusMiles = 3958.8; // Radius of the Earth in miles
+
+	// Convert distance from miles to radians
+	const latOffset = (distanceMiles / earthRadiusMiles) * (180 / Math.PI);
+	const longOffset =
+		((distanceMiles / earthRadiusMiles) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
+
+	return {
+		top: { lat: roundTo6(lat + latOffset), lon },
+		bottom: { lat: roundTo6(lat - latOffset), lon },
+		left: { lat, lon: roundTo6(lon - longOffset) },
+		right: { lat, lon: roundTo6(lon + longOffset) }
+	};
+}
+
+/**
+ * Checks if a coordinate is within the given GeoBoundingBox.
+ * @param coord - The coordinate to check (latitude & longitude)
+ * @param box - The GeoBoundingBox object
+ * @returns true if the coordinate is inside the box, false otherwise
+ */
+export function isCoordInBoundingBox(coord: { lat: number; lon: number }, box: GeoBoundingBox): boolean {
+	console.log({ coord, box });
+	return (
+		coord.lat <= box.top.lat &&
+		coord.lat >= box.bottom.lat &&
+		coord.lon >= box.left.lon &&
+		coord.lon <= box.right.lon
+	);
+}
+
+export function filterLocationsWithInRect(locations: Location[], geoBoundingBox: GeoBoundingBox) {
+	return locations.filter((loc) =>
+		isCoordInBoundingBox({ lat: loc.latitude, lon: loc.longitude }, geoBoundingBox)
+	);
 }

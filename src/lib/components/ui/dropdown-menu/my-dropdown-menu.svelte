@@ -31,12 +31,12 @@
 
 <DropdownMenu.Root bind:open {...restProps}>
 	<DropdownMenu.Trigger
-		class="flex h-10 w-full items-center hover:bg-muted justify-between rounded-md px-4 py-2 text-sm transition-colors  focus:outline-none focus:ring-0"
+		class="flex h-full w-full items-center hover:bg-muted text-primary justify-between rounded-md px-4 py-2 text-sm transition-colors  focus:outline-none focus:ring-0"
 	>
 		{buttonText}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content {...contentProps} class="w-full max-w-[375px] bg-background shadow-lg">
+		<DropdownMenu.Content {...contentProps} class="text-primary w-full max-w-[375px] bg-background shadow-lg">
 			<DropdownMenu.RadioGroup aria-label={buttonText} bind:value={selectedItem}>
 				{#each items as item}
 					<DropdownMenu.RadioItem

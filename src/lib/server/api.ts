@@ -1,14 +1,12 @@
 import { API } from '$lib/config';
 import type {
 	Breeds,
-	Coordinates,
 	DogsRequestBody,
 	DogsResponseBody,
 	DogsSearchResponse,
-	GeoBoundingBox,
 	Location
 } from '$lib/types/api';
-import { dogSearchRequestObj } from '$lib/utils';
+import { dogSearchRequestObj, filterLocationsWithInRect, getGeoBoundingBox } from '$lib/utils';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function searchDogs(
@@ -72,11 +70,11 @@ export async function getDogs(
 
 export type SearchDogsHandlerResponse =
 	| {
-		dogs: DogsResponseBody;
-		total:number
-		next: number;
-		prev: number;
-	}
+			dogs: DogsResponseBody;
+			total: number;
+			next: number;
+			prev: number;
+	  }
 	| { message: string; error: string };
 /**
  * requires that city, state, zip, and distance are in the url as params
@@ -121,6 +119,31 @@ export async function getBreeds({ request, fetch }: RequestEvent) {
 		return { error: response.status.toString(), message: response.statusText };
 	}
 	return (await response.json()) as Breeds;
+}
+
+export async function getMatched({ request, fetch }: RequestEvent) {
+	const {dogs} = await request.json();
+	const ids = dogs.map((dog)=>(dog.id));
+	const matchResponse = await fetch(API.findMatch, {
+		method: 'POST',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json',
+			cookie: request.headers.get('cookie') || ''
+		},
+		body: JSON.stringify(ids)
+	});
+	if (!matchResponse.ok) {
+		return { error: matchResponse.status.toString(), message: matchResponse.statusText };
+	}
+	
+	const {match} = await matchResponse.json();
+	const dogsResponse = await getDogs(request, [match]);
+	if ('error' in dogsResponse) {
+		dogsResponse.message += '\nFailed retrieving dogs';
+		return dogsResponse;
+	}
+	return dogsResponse;
 }
 
 /**
@@ -220,50 +243,4 @@ export async function getZipsFromLocation({ request, fetch, cookies }: RequestEv
 	}
 
 	return { data: results.map((loc) => loc.zip_code) };
-}
-
-function roundTo6(num: number): number {
-	return Math.round(num * 1_000_000) / 1_000_000;
-}
-
-function getGeoBoundingBox(
-	lat: number,
-	lon: number,
-	distanceMiles: number
-): { top: Coordinates; bottom: Coordinates; left: Coordinates; right: Coordinates } {
-	const earthRadiusMiles = 3958.8; // Radius of the Earth in miles
-
-	// Convert distance from miles to radians
-	const latOffset = (distanceMiles / earthRadiusMiles) * (180 / Math.PI);
-	const longOffset =
-		((distanceMiles / earthRadiusMiles) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
-
-	return {
-		top: { lat: roundTo6(lat + latOffset), lon },
-		bottom: { lat: roundTo6(lat - latOffset), lon },
-		left: { lat, lon: roundTo6(lon - longOffset) },
-		right: { lat, lon: roundTo6(lon + longOffset) }
-	};
-}
-
-/**
- * Checks if a coordinate is within the given GeoBoundingBox.
- * @param coord - The coordinate to check (latitude & longitude)
- * @param box - The GeoBoundingBox object
- * @returns true if the coordinate is inside the box, false otherwise
- */
-function isCoordInBoundingBox(coord: { lat: number; lon: number }, box: GeoBoundingBox): boolean {
-	console.log({ coord, box });
-	return (
-		coord.lat <= box.top.lat &&
-		coord.lat >= box.bottom.lat &&
-		coord.lon >= box.left.lon &&
-		coord.lon <= box.right.lon
-	);
-}
-
-function filterLocationsWithInRect(locations: Location[], geoBoundingBox: GeoBoundingBox) {
-	return locations.filter((loc) =>
-		isCoordInBoundingBox({ lat: loc.latitude, lon: loc.longitude }, geoBoundingBox)
-	);
 }

@@ -37,7 +37,7 @@
 {#snippet groupedOptions(options: Record<string, string[]>)}
 	{#each Object.entries(options) as [heading, innerOptions]}
 		<Command.Group class="flex flex-col gap-1">
-			<Command.GroupHeading class="text-[10px] text-slate-500 uppercase py-3 font-medium text-muted-foreground">
+			<Command.GroupHeading class="text-[10px] text-muted-foreground/60 uppercase py-3 font-medium text-muted-foreground">
 				{heading}
 			</Command.GroupHeading>
 			{@render singleGroup(innerOptions)}
@@ -47,7 +47,7 @@
 {/snippet}
 
 <Command.Root
-	class="flex h-full w-full flex-col self-start overflow-hidden bg-background gap-3"
+	class="flex h-full w-full flex-col self-start overflow-hidden bg-background gap-3 text-primary"
 >
 	<Command.Input
 		bind:value={inputValue}

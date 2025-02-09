@@ -16,7 +16,8 @@
 	});
 </script>
 
-<div class="flex gap-2">
+<div class="flex px-2 gap-2 items-center md:ml-auto flex-row-reverse md:flex-row w-fit">
+	<label for="use-location" class="text-xs text-muted-foreground">Use Location</label>
 	<Switch
 		id="use-location"
 		bind:checked={canUse}
@@ -26,5 +27,4 @@
 			await updateURLAndRevalidate(page);
 		}}
 	/>
-	<label for="use-location" class=""> Use Location? </label>
 </div>

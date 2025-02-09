@@ -28,13 +28,13 @@
 	>
 		<Dialog.Content class="w-full min-w-[375px] max-w-[600px]">
 			<Dialog.Header>
-				<Dialog.Title>Matched</Dialog.Title>
+				<Dialog.Title class="text-2xl text-primary">Matched</Dialog.Title>
 				<Dialog.Description>
 					You have been matched with {$Matched.name}
 				</Dialog.Description>
 			</Dialog.Header>
 			<div class="">
-				<img src={$Matched.img} alt={$Matched.id} class="h-full w-full object-cover" />
+				<img src={$Matched.img} alt={$Matched.id} class="h-full w-full aspect-square object-cover" />
 			</div>
 
 			<div class="flex justify-end gap-2">
@@ -42,5 +42,6 @@
 				<Button onclick={resetMatched} class="">Keep Searching</Button>
 			</div>
 		</Dialog.Content>
+		<Dialog.Overlay class="bg-purple-500/20 backdrop-blur-sm" />
 	</Dialog.Root>
 {/if}
