@@ -6,6 +6,11 @@
 
 	const currentLocation = $derived(($LocationInfo && $LocationInfo.state) ?
 	`${$LocationInfo.city} ${$LocationInfo.state}, ${$LocationInfo.zip}` : "Set Your Location")
+	$effect(()=>{
+		if($LocationInfo?.enabled && !$LocationInfo?.state){
+			isOpen = true
+		}
+	})
 </script>
  
 <Dialog.Root bind:open={isOpen} >
