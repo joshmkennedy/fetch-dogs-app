@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 	import HeartFilled from 'svelte-radix/HeartFilled.svelte';
 	import { CountdownTimer } from 'svelte-radix';
 	import Heart from 'svelte-radix/Heart.svelte';
@@ -20,7 +20,7 @@
 	}
 </script>
 
-{#snippet attribute(Icon: ComponentType, label: string, value: string)}
+{#snippet attribute(Icon: Component<{},{},"">, label: string, value: string)}
 	<div class="flex items-center gap-2">
 		{#if Icon}
 			<Icon class="h-3 w-3 fill-muted-foreground text-muted-foreground" />
@@ -37,13 +37,13 @@
 		</h3>
 		<div>
 			<Button
-				class="h-8 w-8 bg-transparent shadow-none hover:bg-muted"
+				class="h-10 w-10 border bg-transparent shadow-none hover:bg-muted"
 				onclick={() => toggleFav(puppy)}
 			>
 				{#if $Favorites && $Favorites.some((p) => p.id == puppy.id)}
-					<HeartFilled class="h-3 w-3 shrink-0 fill-primary" />
+					<HeartFilled class="h-4 w-4 shrink-0 fill-primary" />
 				{:else}
-					<Heart class="h-3 w-3 shrink-0 text-muted-foreground" />
+					<Heart class="h-4 w-4 shrink-0 text-muted-foreground" />
 				{/if}
 			</Button>
 		</div>
@@ -54,6 +54,6 @@
 	<div class="flex flex-col gap-2">
 		{@render attribute(HeartFilled, 'Breed', puppy.breed)}
 		{@render attribute(Location, 'Zip Code', puppy.zip_code)}
-		{@render attribute(CountdownTimer, 'Age', puppy.age)}
+		{@render attribute(CountdownTimer, 'Age', puppy.age.toString())}
 	</div>
 </div>
