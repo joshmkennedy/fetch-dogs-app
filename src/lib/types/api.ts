@@ -27,22 +27,29 @@ export type SortDirection = 'asc' | 'desc';
 export type SortCategory = 'breed' | 'name' | 'age';
 export type DogSearchSortParam = `${SortCategory}:${SortDirection}`;
 export type DogSearchParams = {
-	breeds?: string[];	
+	breeds?: string[];
 	zipCodes?: string[];
 	ageMin?: number;
-	ageMax?:number;
+	ageMax?: number;
 
-	size?:number;
-	from?:number;
+	size?: number;
+	from?: number;
 	sort?: DogSearchSortParam;
-}
+};
+
+export type SearchDogsHandlerResponse =
+	| {
+			dogs: DogsResponseBody;
+			total: number;
+	  }
+	| { message: string; error: string };
 
 export type DogsSearchResponse = {
 	resultIds: string[];
-	total:number;
-	next:string;
-	prev:string;
-}
+	total: number;
+	next: string;
+	prev: string;
+};
 
 /**
  * the Returned requestIds from `/dogs/search`

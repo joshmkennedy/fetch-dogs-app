@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import { Favorites, Matched } from '$lib/store';
 	import { Button } from '$lib/components/ui/button';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { goto } from '$app/navigation';
 
 	function resetMatched() {
 		$Matched = undefined;

@@ -20,7 +20,7 @@
 	{#snippet children({ pages, range })}
 		<div class="my-8 flex items-center justify-center">
 			<Pagination.PrevButton
-				class="hover:bg-muted active:scale-98 mr-[25px] inline-flex size-10 items-center justify-center rounded-[9px] bg-transparent disabled:cursor-not-allowed disabled:text-muted-foreground hover:disabled:bg-transparent"
+				class="active:scale-98 mr-[25px] inline-flex size-10 items-center justify-center rounded-[9px] bg-transparent hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground hover:disabled:bg-transparent"
 			>
 				<CaretLeft class="size-6" />
 			</Pagination.PrevButton>
@@ -31,9 +31,9 @@
 					{:else}
 						<Pagination.Page
 							{page}
-							class="hover:bg-muted hover:text-primary active:scale-98 inline-flex size-10
-							select-none items-center justify-center rounded-[9px]
-							bg-transparent text-[15px] font-medium disabled:cursor-not-allowed
+							class="active:scale-98 inline-flex size-10 select-none items-center
+							justify-center rounded-[9px] bg-transparent text-[15px]
+							font-medium hover:bg-muted hover:text-primary disabled:cursor-not-allowed
 							disabled:opacity-50 hover:disabled:bg-transparent
 							data-[selected]:bg-primary data-[selected]:text-background"
 						>
@@ -43,7 +43,7 @@
 				{/each}
 			</div>
 			<Pagination.NextButton
-				class="hover:bg-muted active:scale-98 ml-[29px] inline-flex size-10 items-center justify-center rounded-[9px] bg-transparent disabled:cursor-not-allowed disabled:text-muted-foreground hover:disabled:bg-transparent"
+				class="active:scale-98 ml-[29px] inline-flex size-10 items-center justify-center rounded-[9px] bg-transparent hover:bg-muted disabled:cursor-not-allowed disabled:text-muted-foreground hover:disabled:bg-transparent"
 			>
 				<CaretRight class="size-6" />
 			</Pagination.NextButton>

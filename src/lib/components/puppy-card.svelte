@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Dog } from '$lib/types/api';
-	import HeartFilled from 'svelte-radix/HeartFilled.svelte';
-	import Heart from 'svelte-radix/Heart.svelte';
-	import Location from '$lib/components/ui/icons/location.svelte';
-	import { Favorites } from '$lib/store';
-	import { CountdownTimer } from 'svelte-radix';
-	import Button from '$lib/components/ui/button/button.svelte';
 	import type { ComponentType } from 'svelte';
+	import HeartFilled from 'svelte-radix/HeartFilled.svelte';
+	import { CountdownTimer } from 'svelte-radix';
+	import Heart from 'svelte-radix/Heart.svelte';
+	import { Favorites } from '$lib/store';
+	import type { Dog } from '$lib/types/api';
+	import Location from '$lib/components/ui/icons/location.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	const { puppy }: { puppy: Dog } = $props();
 
@@ -20,7 +20,7 @@
 	}
 </script>
 
-{#snippet attribute(Icon:ComponentType, label:string, value:string)}
+{#snippet attribute(Icon: ComponentType, label: string, value: string)}
 	<div class="flex items-center gap-2">
 		{#if Icon}
 			<Icon class="h-3 w-3 fill-muted-foreground text-muted-foreground" />
@@ -30,7 +30,7 @@
 	</div>
 {/snippet}
 
-<div class="flex flex-col gap-2 rounded-sm border p-2 min-w-full">
+<div class="flex min-w-full flex-col gap-2 rounded-sm border p-2">
 	<header class="flex items-baseline justify-between gap-0">
 		<h3 class="text-lg font-medium text-primary">
 			{puppy.name}

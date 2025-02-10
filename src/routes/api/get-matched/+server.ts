@@ -1,9 +1,9 @@
-import { getMatched } from "$lib/server/api";
+import { getMatched } from '$lib/server/api';
 
 export async function POST(event) {
-	const response = await getMatched(event);
-	if ('error' in response) {
-		return new Response(JSON.stringify({ error: response.message }), { status: response.error });
+	const matchedDog = await getMatched(event);
+	if ('error' in matchedDog) {
+		return new Response(JSON.stringify({ error: matchedDog.message }), { status: matchedDog.error });
 	}
-	return new Response(JSON.stringify({ matched: response[0] }), {status: 200});
+	return new Response(JSON.stringify({ matched: matchedDog }), { status: 200 });
 }

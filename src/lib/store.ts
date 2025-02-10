@@ -56,7 +56,6 @@ export function initializeSort() {
 	return { cat: 'breed', dir: 'asc' };
 }
 
-
 export const LocationInfo = writable<LocationInfoType | undefined>(
 	(browser && initializeLocationInfo()) || undefined
 );
@@ -118,4 +117,4 @@ export const SearchParamsStore = derived(
 	}
 );
 
-export const Matched = writable<Dog|undefined>(undefined);
+export const Matched = writable<Dog | undefined>(undefined);

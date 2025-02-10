@@ -21,7 +21,7 @@
 	<Command.GroupItems class="">
 		{#each options as option}
 			<Command.Item
-				class="flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition-colors data-[selected]:bg-muted hover:bg-muted focus:outline-none focus:ring-0"
+				class="flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition-colors hover:bg-muted focus:outline-none focus:ring-0 data-[selected]:bg-muted"
 				onclick={() => (inputValue = '') || handleClick(option)}
 			>
 				{#if itemsComp}
@@ -37,24 +37,26 @@
 {#snippet groupedOptions(options: Record<string, string[]>)}
 	{#each Object.entries(options) as [heading, innerOptions]}
 		<Command.Group class="flex flex-col gap-1">
-			<Command.GroupHeading class="text-[10px] text-muted-foreground/60 uppercase py-3 font-medium text-muted-foreground">
+			<Command.GroupHeading
+				class="py-3 text-[10px] font-medium uppercase text-muted-foreground text-muted-foreground/60"
+			>
 				{heading}
 			</Command.GroupHeading>
 			{@render singleGroup(innerOptions)}
 		</Command.Group>
-		<Command.Separator class="h-px bg-border my-3.5" />
+		<Command.Separator class="my-3.5 h-px bg-border" />
 	{/each}
 {/snippet}
 
 <Command.Root
-	class="flex h-full w-full flex-col self-start overflow-hidden bg-background gap-3 text-primary"
+	class="flex h-full w-full flex-col gap-3 self-start overflow-hidden bg-background text-primary"
 >
 	<Command.Input
 		bind:value={inputValue}
-		class="focus-override h-input border placeholder:text-foreground-alt/50 inline-flex w-full truncate border-slate-200 bg-background px-4 text-sm transition-colors rounded-sm focus:outline-none focus:ring-0"
+		class="focus-override h-input placeholder:text-foreground-alt/50 inline-flex w-full truncate rounded-sm border border-slate-200 bg-background px-4 text-sm transition-colors focus:outline-none focus:ring-0"
 		placeholder={`Search for ${label}...`}
 	/>
-	<Command.List class="h-[400px] md:h-[85vh] overflow-y-auto overflow-x-hidden px-2 pb-2">
+	<Command.List class="h-[400px] overflow-y-auto overflow-x-hidden px-2 pb-2 md:h-[85vh]">
 		<Command.Viewport>
 			<Command.Empty
 				class="flex w-full items-center justify-center pb-6 pt-8 text-sm text-muted-foreground"

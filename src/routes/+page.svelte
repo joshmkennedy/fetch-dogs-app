@@ -6,10 +6,7 @@
 	import LocationsModal from '$lib/components/locations-modal.svelte';
 	import PuppyGrid from '$lib/components/puppy-grid.svelte';
 	import Pagination from '$lib/components/ui/pagination/my-pagination.svelte';
-	import {
-		initializeSelectedBreeds,
-		SelectedBreeds
-	} from '$lib/store';
+	import { initializeSelectedBreeds, SelectedBreeds } from '$lib/store';
 	import UseLocationToggle from '$lib/components/forms/use-location-toggle.svelte';
 	import SortSelect from '$lib/components/forms/sort-select.svelte';
 	import FavoritesModal from '$lib/components/favorites-modal.svelte';
@@ -81,7 +78,6 @@
 						No dogs found. Try a different breed or location.
 					</p>
 				{/if}
-
 			</main>
 		</div>
 		<aside class="top-0 hidden max-w-sm md:sticky md:block">

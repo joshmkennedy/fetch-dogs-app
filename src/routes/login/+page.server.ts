@@ -11,14 +11,14 @@ export const actions = {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
 			body: await request.text()
-		}).catch((error)=>({error}));
+		}).catch((error) => ({ error }));
 
-		if("error" in response){
-			return fail(500, {error:"NOOOOO we failed"})
+		if ('error' in response) {
+			return fail(500, { error: 'NOOOOO we failed' });
 		}
 
-		forwardCookies(cookies, response.headers.getSetCookie())
+		forwardCookies(cookies, response.headers.getSetCookie());
 
-		redirect(303, '/')
+		redirect(303, '/');
 	}
 } satisfies Actions;

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import Combobox from '$lib/components/ui/combobox/mycombobox.svelte';
-	import { STATES } from '$lib/config';
 	import { onMount } from 'svelte';
+	import { STATES } from '$lib/config';
+	import Combobox from '$lib/components/ui/combobox/mycombobox.svelte';
+
 	let { selectedStateCode = $bindable() }: { selectedStateCode: string } = $props();
 
 	// setting the zips we will use to fetch doggies
@@ -18,21 +19,21 @@
 				: label;
 		}, '')
 	);
-	$effect(()=>{
-		console.log(selectedState, selectedStateCode)
-	})
-	let ready = $state(false)
-	onMount(()=>{
-		ready = true
-	})
-
+	$effect(() => {
+		console.log(selectedState, selectedStateCode);
+	});
+	let ready = $state(false);
+	onMount(() => {
+		ready = true;
+	});
 </script>
+
 {#if ready}
-<Combobox
-	label="Your State or Province"
-	inputValue={selectedState}
-	bind:value={selectedStateCode}
-	{options}
-	name="state"
-></Combobox>
+	<Combobox
+		label="Your State or Province"
+		inputValue={selectedState}
+		bind:value={selectedStateCode}
+		{options}
+		name="state"
+	></Combobox>
 {/if}

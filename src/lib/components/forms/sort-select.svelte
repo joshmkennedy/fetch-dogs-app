@@ -1,19 +1,18 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import {
 		SortCategoryOption as SelectedCategory,
 		SortDirectionOption as SelectedDirection
 	} from '$lib/store';
-	import DropdownMenu from '$lib/components/ui/dropdown-menu/my-dropdown-menu.svelte';
-	import type { SortCategory, SortDirection } from '$lib/types/api';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 	import { updateURLAndRevalidate } from '$lib/utils';
+	import type { SortCategory, SortDirection } from '$lib/types/api';
+	import DropdownMenu from '$lib/components/ui/dropdown-menu/my-dropdown-menu.svelte';
+
 	const sortCategoryOptions = ['breed', 'name', 'age'];
 	const sortDirectionOptions = ['asc', 'desc'];
 
 	onMount(() => {
-
 		if (page.url.searchParams.has('sort')) {
 			const [cat, dir] = page.url.searchParams.get('sort')?.split(':');
 			$SelectedCategory = cat;
@@ -38,7 +37,7 @@
 		}}
 		items={sortCategoryOptions}
 	/>
-	<span class="w-[1px] h-full bg-border"></span>
+	<span class="h-full w-[1px] bg-border"></span>
 	<DropdownMenu
 		bind:buttonText={$SelectedDirection}
 		selectedItem={$SelectedDirection}

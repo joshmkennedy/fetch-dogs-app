@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Favorites, Matched } from '$lib/store';
-	import FavoritesCarousel from './favorites-carousel.svelte';
 	import { Button } from './ui/button';
 	import * as Dialog from './ui/dialog';
+	import FavoritesCarousel from './favorites-carousel.svelte';
+
 	let isOpen = $state(false);
 
 	async function getMatched() {
@@ -20,7 +21,7 @@
 		}
 	}
 	$effect(() => {
-		if ($Favorites.length==0) {
+		if ($Favorites.length == 0) {
 			isOpen = false;
 		}
 	});
@@ -29,7 +30,7 @@
 <div>
 	<Dialog.Root bind:open={isOpen}>
 		<h2 class="mb-2 text-sm font-medium text-muted-foreground">Favorites</h2>
-		<div class="min-h-[45px] flex items-center gap-2">
+		<div class="flex min-h-[45px] items-center gap-2">
 			{#if $Favorites.length}
 				<Dialog.Trigger class="rounded-sm p-2 text-left hover:bg-muted">
 					<div class="flex items-center gap-2">
@@ -50,11 +51,10 @@
 				<Dialog.Description>Here are your favorites.</Dialog.Description>
 			</Dialog.Header>
 			<div class="relative overflow-hidden">
-				<FavoritesCarousel {getMatched} />
+				<FavoritesCarousel />
 			</div>
 		</Dialog.Content>
 
 		<Dialog.Overlay class="bg-purple-500/20 backdrop-blur-sm" />
-
 	</Dialog.Root>
 </div>

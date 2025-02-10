@@ -1,13 +1,18 @@
 <script lang="ts">
-	import { type DropdownMenuContentStaticProps, type DropdownMenuRootProps,DropdownMenu, type WithoutChild } from 'bits-ui';
+	import {
+		type DropdownMenuContentStaticProps,
+		type DropdownMenuRootProps,
+		DropdownMenu,
+		type WithoutChild
+	} from 'bits-ui';
 	import { Check } from 'svelte-radix';
 
 	type Props = DropdownMenuRootProps & {
 		buttonText: string;
-		items: (string)[];
+		items: string[];
 		selectedItem: string;
 		contentProps?: WithoutChild<DropdownMenuContentStaticProps>;
-		onChange: (selected:any)=>void;
+		onChange: (selected: any) => void;
 	};
 
 	let {
@@ -22,21 +27,23 @@
 	}: Props = $props();
 	$effect(() => {
 		// hate this but Im running out of time
-		if(selectedItem !== buttonText){
+		if (selectedItem !== buttonText) {
 			onChange(selectedItem);
 		}
 	});
-
 </script>
 
 <DropdownMenu.Root bind:open {...restProps}>
 	<DropdownMenu.Trigger
-		class="flex h-full w-full items-center hover:bg-muted text-primary justify-between rounded-md px-4 py-2 text-sm transition-colors  focus:outline-none focus:ring-0"
+		class="flex h-full w-full items-center justify-between rounded-md px-4 py-2 text-sm text-primary transition-colors hover:bg-muted  focus:outline-none focus:ring-0"
 	>
 		{buttonText}
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Portal>
-		<DropdownMenu.Content {...contentProps} class="text-primary w-full max-w-[375px] bg-background shadow-lg">
+		<DropdownMenu.Content
+			{...contentProps}
+			class="w-full max-w-[375px] bg-background text-primary shadow-lg"
+		>
 			<DropdownMenu.RadioGroup aria-label={buttonText} bind:value={selectedItem}>
 				{#each items as item}
 					<DropdownMenu.RadioItem

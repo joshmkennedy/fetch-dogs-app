@@ -4,10 +4,36 @@ import type {
 	DogsRequestBody,
 	DogsResponseBody,
 	DogsSearchResponse,
-	Location
+	Location,
+	SearchDogsHandlerResponse
 } from '$lib/types/api';
 import { dogSearchRequestObj, filterLocationsWithInRect, getGeoBoundingBox } from '$lib/utils';
 import type { RequestEvent } from '@sveltejs/kit';
+
+
+/**
+ * requires that city, state, zip, and distance are in the url as params
+ * and optionally a list of breeds are in the url
+ *
+ **/
+export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogsHandlerResponse> {
+	const searchData = await searchDogs(event);
+	if ('error' in searchData) {
+		searchData.message += ': Failed searching for dogs';
+		return searchData;
+	}
+
+	const dogsResponse = await getDogs(event.request, searchData.resultIds);
+	if ('error' in dogsResponse) {
+		dogsResponse.message += ': Failed retrieving dogs';
+		return dogsResponse;
+	}
+
+	return {
+		total: searchData.total,
+		dogs: dogsResponse,
+	};
+}
 
 export async function searchDogs(
 	event: RequestEvent
@@ -15,7 +41,7 @@ export async function searchDogs(
 	const { fetch, request, cookies } = event;
 	const url = new URL(request.url);
 	const locationEnabeled = cookies.get('enabled') == 'true';
-	if (locationEnabeled && (cookies.get("state") || url.searchParams.get('state'))) {
+	if (locationEnabeled && (cookies.get('state') || url.searchParams.get('state'))) {
 		const zips = await getZipsFromLocation(event);
 
 		if ('error' in zips) {
@@ -68,44 +94,6 @@ export async function getDogs(
 	};
 }
 
-export type SearchDogsHandlerResponse =
-	| {
-			dogs: DogsResponseBody;
-			total: number;
-			next: number;
-			prev: number;
-	  }
-	| { message: string; error: string };
-/**
- * requires that city, state, zip, and distance are in the url as params
- * and optionally a list of breeds are in the url
- *
- **/
-export async function searchDogsHandler(event: RequestEvent): Promise<SearchDogsHandlerResponse> {
-	const searchData = await searchDogs(event);
-	if ('error' in searchData) {
-		searchData.message += '\nFailed searching for dogs';
-		return searchData;
-	}
-
-	const dogsResponse = await getDogs(event.request, searchData.resultIds);
-	if ('error' in dogsResponse) {
-		dogsResponse.message += '\nFailed retrieving dogs';
-		return dogsResponse;
-	}
-
-	const nextParams = new URL(`${API.base}/${searchData.next}`).searchParams;
-	const nextCursor = parseInt(nextParams.get('from') ?? '') || 25;
-	const prevParams = new URL(`${API.base}/${searchData.prev}`).searchParams;
-	const prevCursor = parseInt(prevParams.get('from') ?? '') || 0;
-
-	return {
-		total: searchData.total,
-		dogs: dogsResponse,
-		next: nextCursor,
-		prev: prevCursor
-	};
-}
 
 export async function getBreeds({ request, fetch }: RequestEvent) {
 	const response = await fetch(API.breeds, {
@@ -122,8 +110,8 @@ export async function getBreeds({ request, fetch }: RequestEvent) {
 }
 
 export async function getMatched({ request, fetch }: RequestEvent) {
-	const {dogs} = await request.json();
-	const ids = dogs.map((dog)=>(dog.id));
+	const { dogs } = await request.json();
+	const ids = dogs.map((dog) => dog.id);
 	const matchResponse = await fetch(API.findMatch, {
 		method: 'POST',
 		credentials: 'include',
@@ -136,14 +124,11 @@ export async function getMatched({ request, fetch }: RequestEvent) {
 	if (!matchResponse.ok) {
 		return { error: matchResponse.status.toString(), message: matchResponse.statusText };
 	}
-	
-	const {match} = await matchResponse.json();
-	const dogsResponse = await getDogs(request, [match]);
-	if ('error' in dogsResponse) {
-		dogsResponse.message += '\nFailed retrieving dogs';
-		return dogsResponse;
-	}
-	return dogsResponse;
+
+	const { match } = await matchResponse.json();
+	const matchedDog = dogs.find((dog) => dog.id == match);
+
+	return matchedDog;
 }
 
 /**

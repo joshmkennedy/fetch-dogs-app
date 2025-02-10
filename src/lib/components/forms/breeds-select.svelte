@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { updateURLAndRevalidate } from '$lib/utils';
-	import Command from '$lib/components/ui/command/my-command.svelte';
-	import { BREEDIMAGES } from '$lib/config';
-	import { SelectedBreeds } from '$lib/store';
 	import { Plus } from 'svelte-radix';
+	import { updateURLAndRevalidate } from '$lib/utils';
+	import { SelectedBreeds } from '$lib/store';
+	import { BREEDIMAGES } from '$lib/config';
+	import Command from '$lib/components/ui/command/my-command.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 
 	type BreedsSelect = {
 		breeds: string[];
 	};
+
 	let { breeds }: BreedsSelect = $props();
 
 	let breedsAsOptions = $derived({
@@ -87,9 +88,9 @@
 
 <Dialog.Root>
 	<Dialog.Trigger class={`w-full rounded-sm border p-2 text-left hover:bg-muted md:hidden`}>
-		<div class="flex text-xs text-muted-foreground gap-2 items-center">
+		<div class="flex items-center gap-2 text-xs text-muted-foreground">
 			<div class="whitespace-nowrap">Open Breed Filter</div>
-			<div class="relative flex w-full -space-x-4 overflow-x-auto min-h-[45px]">
+			<div class="relative flex min-h-[45px] w-full -space-x-4 overflow-x-auto">
 				{#each $SelectedBreeds.slice(0, 5) as tag}
 					<img
 						src={BREEDIMAGES[tag as keyof typeof BREEDIMAGES]}

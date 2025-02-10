@@ -61,20 +61,18 @@ export const flyAndScale = (
 	};
 };
 
-// TODO: find out what kind of query params are expected ie comma seperated or duplicate keys
-export function parseArrayToSearchParams(param: string[]): string {
-	return param.join(',');
-}
-
 export function parseDogSearchParams(paramObj: DogSearchParams) {
 	const params = new URLSearchParams();
 	if ('breeds' in paramObj && paramObj.breeds) {
-		params.set('breeds', parseArrayToSearchParams(paramObj.breeds));
+		paramObj.breeds.forEach((breed) => {
+			params.append('breeds', breed);
+		});
 	}
 	if ('zipCodes' in paramObj && paramObj.zipCodes) {
-		params.set('zipCodes', parseArrayToSearchParams(paramObj.zipCodes));
+		paramObj.zipCodes.forEach((zip) => {
+			params.append('zipCodes', zip);
+		});
 	}
-
 	if ('from' in paramObj && paramObj.from) {
 		params.set('from', paramObj.from.toString());
 	}
@@ -185,7 +183,10 @@ export function getGeoBoundingBox(
  * @param box - The GeoBoundingBox object
  * @returns true if the coordinate is inside the box, false otherwise
  */
-export function isCoordInBoundingBox(coord: { lat: number; lon: number }, box: GeoBoundingBox): boolean {
+export function isCoordInBoundingBox(
+	coord: { lat: number; lon: number },
+	box: GeoBoundingBox
+): boolean {
 	console.log({ coord, box });
 	return (
 		coord.lat <= box.top.lat &&
