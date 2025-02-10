@@ -1,38 +1,47 @@
-# sv
+# Puppy Fetch
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This is a SvelteKit app that fetches puppies from the Dog API.
 
-## Creating a project
+## Fetch Frontend Take-Home Exercise
 
-If you're seeing this, you've probably already done this step. Congrats!
+Hey there 👋. Thanks for checking out my take-home exercise for the Fetch Frontend role. Heres how I did it.
 
-```bash
-# create a new project in the current directory
-npx sv create
+I used SvelteKit and Tailwind to build this app. I used the shadcn-ui component library to make the UI look nice. Im storing state in the urls so that different breeds and location filter settings can be shared by sharing the url. Im also Storing your settings in localstorage and cookies so that users don't have to re-enter their information.
 
-# create a new project in my-app
-npx sv create my-app
-```
+If I continued to work on this project I would clean up the api.ts file and make
+those functions more reusable. I would also like to add testing with playwright.
+I'd also like to add more subtle animations to the puppy grid.
 
-## Developing
+## Run this project
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. Clone this repo
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+git clone https://github.com/joshkennedy/fetch-dogs-app.git
 ```
 
-## Building
-
-To create a production version of your app:
+2. cd into the directory
 
 ```bash
-npm run build
+cd fetch-dogs-app
 ```
 
-You can preview the production build with `npm run preview`.
+3. Install dependencies
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+npm install
+```
+
+4. Create a .env file
+
+```bash
+echo "PUBLIC_API=\"https://frontend-take-home-service.fetch.com\"" > .env
+```
+
+5. Run the app
+
+```bash
+npm run build && npm run preview
+```
+
+6. Give Josh a high five 👋 and maybe an interview 😎.
